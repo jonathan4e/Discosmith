@@ -42,4 +42,4 @@ class dashboard(QFrame):
             bot_name = dialog.nameInput.text().strip()
             if bot_name:
                 self.bot_name = bot_name
-                os.makedirs(f"{bot_name}",exist_ok=True)
+                os.makedirs(f"{bot_name}", exist_ok=True)
