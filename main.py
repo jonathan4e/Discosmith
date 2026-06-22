@@ -1,3 +1,4 @@
+#main.py - Discosmith
 import sys
 import json
 import os
@@ -11,7 +12,7 @@ from dashboard import dashboard
 from settings import settings
 
 
-
+#note - ai was used in helping me learn a part of the code below.
 class LocalhostTokenListener(QThread):
     token_received = Signal(str)
 
