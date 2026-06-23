@@ -46,5 +46,13 @@ class boteditor(QFrame):
         setting1.button.checkedChanged.connect(lambda checked: print(checked))
         self.layout.addWidget(setting1)
 
+        setting2 = configCard(title="AI Chat", subtitle="Chat with AI")
+        setting2.button.checkedChanged.connect(lambda checked: print(checked))
+        self.layout.addWidget(setting2)
+
+        setting3 = configCard(title="Virtual Currency", subtitle="Add a virtual currency")
+        setting3.button.checkedChanged.connect(lambda checked: print(checked))
+        self.layout.addWidget(setting3)
+
     def setbotname(self, bot_name):
         self.pagetitle.setText(f"Editing Bot : {bot_name}")
