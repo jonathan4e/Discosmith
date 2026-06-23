@@ -1,4 +1,3 @@
-#main.py - Discosmith
 import sys
 import json
 import os
@@ -10,6 +9,7 @@ from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkRe
 from qfluentwidgets import FluentWindow, FluentIcon as FIF, NavigationItemPosition, SplashScreen, NavigationWidget, isDarkTheme
 from dashboard import dashboard
 from settings import settings
+from botmaker import botmaker
 
 
 #note - ai was used in helping me learn a part of the code below.
@@ -113,8 +113,10 @@ class MainWindow(FluentWindow):
     def initNavigation(self):
         self.settings = settings()
         self.dashboard = dashboard()
+        self.botmaker = botmaker()
         self.avatar_widget = AvatarWidget(self)
         self.addSubInterface(self.dashboard, FIF.HOME, "Dashboard")
+        self.addSubInterface(self.botmaker, FIF.ROBOT, "Botmaker")
         self.navigationInterface.addSeparator()
         self.navigationInterface.addWidget(
             routeKey='avatar', widget=self.avatar_widget, onClick=self.handle_avatar_click, position=NavigationItemPosition.BOTTOM
@@ -129,7 +131,7 @@ class MainWindow(FluentWindow):
         self.listener_thread.token_received.connect(self.on_token_received)
         self.listener_thread.start()
 
-        QDesktopServices.openUrl(QUrl(self.VERCEL_AUTH_URL))
+        QDesktopServices.openUrl(QUrl(self.VERCEL_AUTH_URL)) 
 
     def on_token_received(self, token):
         self.save_session(token)
@@ -174,6 +176,8 @@ class MainWindow(FluentWindow):
     def fetch_avatar_image(self, url_str):
         reply = self.network_manager.get(QNetworkRequest(QUrl(url_str)))
         reply.finished.connect(lambda: [self.avatar_widget.set_avatar_image(reply.readAll().data()), reply.deleteLater()])
+
+
 
 
 if __name__ == "__main__":
