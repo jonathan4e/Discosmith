@@ -15,6 +15,15 @@ class newbot(MessageBox):
         self.textLayout.addWidget(self.name)
         self.widget.setMinimumWidth(400)
 
+class bottoken(MessageBox):
+    def __init__(self, parent=None):
+        super().__init__("Bot token", "Enter bot token:", parent)
+        self.token = LineEdit(self)
+        self.token.setPlaceholderText("MTxxxxx....")
+        self.token.setClearButtonEnabled(True)
+        self.textLayout.addWidget(self.token)  
+        self.widget.setMinimumWidth(400)
+
 
 class botmaker(QFrame):
     def __init__(self, parent=None):
@@ -50,12 +59,23 @@ class botmaker(QFrame):
                 self.bot_name = bot_name
                 os.makedirs(f"{bot_name}", exist_ok=True)
                 env_path = os.path.join(bot_name, ".env")
+                dialog2 = bottoken(self)
+                dialog2.exec()
+                token = dialog2.token.text().strip()
+                if token:
+                    with open(env_path, "w") as f:
+                        f.write(f"DISCORD_BOT_TOKEN={token}\n")
+                else:
+                    MessageBox.information(self, "Error", "Please enter a valid bot token.")
                 if not os.path.exists(env_path):
                     with open(env_path, "w") as f:
                         f.write("") 
-                data = {"bot_name": bot_name}
-                with open('data.json', 'w') as json_file:
-                    json.dump(data, json_file)
+                        token = dialog2.token.text().strip()
+                        if token:
+                            with open(env_path, "w") as f:
+                               f.write(f"DISCORD_BOT_TOKEN={token}\n")
+                        else:
+                            MessageBox.information(self, "Error", "Please enter a valid bot token.")
                 self.editor.setbotname(bot_name)
                 self.stacked_widget.setCurrentWidget(self.editor)
                 
