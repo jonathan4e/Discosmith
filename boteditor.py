@@ -54,5 +54,12 @@ class boteditor(QFrame):
         setting3.button.checkedChanged.connect(lambda checked: print(checked))
         self.layout.addWidget(setting3)
 
+        setting4 = configCard(title="Mod Commands", subtitle="Admin Mod Commands")
+        setting4.button.checkedChanged.connect(lambda checked: print(checked))
+        self.layout.addWidget(setting4)
+
+        setting5 = configCard(title="Music", subtitle="Stream music in the VC")
+        setting5.button.checkedChanged.connect(lambda checked: print(checked))
+        self.layout.addWidget(setting5)
     def setbotname(self, bot_name):
         self.pagetitle.setText(f"Editing Bot : {bot_name}")
