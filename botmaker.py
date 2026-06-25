@@ -6,6 +6,7 @@ from qfluentwidgets import LineEdit, MessageBox, FluentIcon as FIF, PrimaryDropD
 import json
 from boteditor import boteditor
 
+
 class newbot(MessageBox):
     def __init__(self, parent=None):
         super().__init__("Add Bot", "Enter bot name:", parent)
@@ -76,6 +77,7 @@ class botmaker(QFrame):
                                f.write(f"DISCORD_BOT_TOKEN={token}\n")
                         else:
                             MessageBox.information(self, "Error", "Please enter a valid bot token.")
+                self.editor.setdir(bot_name)
                 self.editor.setbotname(bot_name)
                 self.stacked_widget.setCurrentWidget(self.editor)
                 
