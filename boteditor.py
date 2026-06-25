@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget, QHBo
 from PySide6.QtCore import Qt
 import os
 import sys
-from qfluentwidgets import LineEdit, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
+from qfluentwidgets import LineEdit,Flyout, InfoBarIcon, FlyoutAnimationType,  FlyoutView, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
 import json
 from dotenv import load_dotenv, find_dotenv, set_key
 
@@ -36,6 +36,17 @@ class configCard(CardWidget):
         self.hlayout.addWidget(self.more,0, Qt.AlignRight)
         self.more.setFixedSize(32,32)
 
+
+
+class apikeymessage(MessageBox):
+    def __init__(self, parent=None):
+        super().__init__("Gemini API Key", "Enter Gemini API Key:", parent)
+        self.name = LineEdit(self)
+        self.name.setPlaceholderText("API Key")
+        self.name.setClearButtonEnabled(True)
+        self.textLayout.addWidget(self.name)
+        self.widget.setMinimumWidth(400)
+
 class boteditor(QFrame):
     def __init__(self,parent=None):
         super().__init__(parent)
@@ -46,13 +57,13 @@ class boteditor(QFrame):
         self.layout.addWidget(self.pagetitle)
 
         self.dotenvfile = ""
-        
+
         setting1 = configCard(title="Welcomer", subtitle="Sends a welcome message")
         setting1.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"WELCOMER","TRUE" if checked else "FALSE", quote_mode="never"))
         self.layout.addWidget(setting1)
 
         setting2 = configCard(title="AI Chat", subtitle="Chat with AI")
-        setting2.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"AI","TRUE" if checked else "FALSE", quote_mode="never"))
+        setting2.button.checkedChanged.connect(lambda checked: self.aichat(checked))
         self.layout.addWidget(setting2)
 
         setting3 = configCard(title="Virtual Currency", subtitle="Add a virtual currency")
@@ -74,9 +85,25 @@ class boteditor(QFrame):
         self.layout.addStretch(1)
     
 
+    def aichat(self, checked):
+        if checked:
+            apiinput = apikeymessage(self)
+            if apiinput.exec():
+                api_key = apiinput.name.text().strip()
+                set_key(self.dotenvfile,"GEMINI_API_KEY",api_key, quote_mode="never")
+                set_key(self.dotenvfile,"AI","TRUE", quote_mode="never")
+            else:
+                MessageBox.information(self, "Error", "Please enter a valid API key.")
+                set_key(self.dotenvfile,"AI","FALSE", quote_mode="never")
+        if not checked:
+            set_key(self.dotenvfile,"AI","FALSE", quote_mode="never")
+
+
     def setbotname(self, bot_name):
-              
+        
         self.pagetitle.setText(f"Editing Bot : {bot_name}")
+        with open("requirements.txt", "w") as f:
+            f.write("discord\ngoogle")
 
     def setdir(self, bot_name):
         targetdir = os.path.abspath(os.path.join(os.getcwd(), bot_name))
@@ -87,12 +114,13 @@ class boteditor(QFrame):
         self.dotenvfile = os.path.join(targetdir, ".env")
         load_dotenv(self.dotenvfile)
 
-    def compile():
+    def compile(self):
         template = """
 import os
 import discord
 from dotenv import load_dotenv
 from google import genai 
+from discord.ext import commands
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
@@ -134,11 +162,20 @@ async def on_member_join(member):
         if ai == "TRUE":
             with open("bot.py", "a") as f:
                 f.write("""
-ai = genai.CLient(api_key = os.getenv("GEMINI_API_KEY"))
+ai = genai.Client(api_key = os.getenv("GEMINI_API_KEY"))
 @bot.tree.command(name="ai", description="Chat with AI")
 async def ai(interaction: discord.Interaction):
     await interaction.response.defer()
                         
-    response = ai.models.generate_content(model="gemini-3.5-flash", contents=text)
-    await interaction.followup.send(response)
+    response = ai.models.generate_content(model="gemini-3.5-flash", contents=prompt)
+    await interaction.followup.send(response.text)
                         """)
+        
+
+        # have to add other functions
+
+
+
+        flyout = FlyoutView(icon=InfoBarIcon.SUCCESS, title="Bot Compiled!", content="Your bot has successfully been compiled! Check bot.py for your bot's source code. Make sure to install the required modules from requirements.txt file!", parent=self, isClosable=True)
+        w = Flyout.make(flyout, self.compilebutton, self, aniType=FlyoutAnimationType.PULL_UP)
+        flyout.closed.connect(w.close)
