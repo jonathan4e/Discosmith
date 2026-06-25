@@ -69,6 +69,7 @@ class boteditor(QFrame):
 
         self.compilebutton = PrimaryPushButton(FIF.SYNC, "Compile")
         self.compilebutton.clicked.connect(self.compile)
+        self.layout.addWidget(self.compilebutton)
 
         self.layout.addStretch(1)
     
