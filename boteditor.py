@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget, QHBo
 from PySide6.QtCore import Qt
 import os
 import sys
-from qfluentwidgets import LineEdit, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton
+from qfluentwidgets import LineEdit, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
 import json
 from dotenv import load_dotenv, find_dotenv, set_key
 
@@ -67,7 +67,12 @@ class boteditor(QFrame):
         setting5.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"MUSIC","TRUE" if checked else "FALSE", quote_mode="never"))
         self.layout.addWidget(setting5)
 
+        self.compilebutton = PrimaryPushButton(FIF.SYNC, "Compile")
+        self.compilebutton.clicked.connect(self.compile)
+
         self.layout.addStretch(1)
+    
+
     def setbotname(self, bot_name):
               
         self.pagetitle.setText(f"Editing Bot : {bot_name}")
@@ -80,3 +85,59 @@ class boteditor(QFrame):
 
         self.dotenvfile = os.path.join(targetdir, ".env")
         load_dotenv(self.dotenvfile)
+
+    def compile():
+        template = """
+import os
+import discord
+from dotenv import load_dotenv
+from google import genai 
+
+load_dotenv()
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+
+intents = discord.Intents.default()
+intents.members = True 
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+@bot.event
+async def on_ready():
+    await bot.tree.sync()
+    print(f"{bot.user} is conntected")
+
+    
+@bot.tree.command(name= "ping", description = "Check latency")
+async def ping(interaction: discord.Interaction):
+    latency = round(bot.latency * 1000)
+    await interaction.response.send_message(f"Pong, {latency}ms")
+
+"""
+        with open("bot.py", "w") as f:
+            f.write(template)
+        
+        welcome = os.getenv("WELCOMER")
+        ai = os.getenv("AI")
+        vc = os.getenv("VC")
+        mod = os.getenv("MOD")
+        music = os.getenv("MUSIC")
+
+        if welcome == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+@bot.event
+async def on_member_join(member):
+    channel = member.guild.system_channel
+    channel.send(f"Welcome to the server {member.mention}! :wave:")
+                        """)
+                
+        if ai == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+ai = genai.CLient(api_key = os.getenv("GEMINI_API_KEY"))
+@bot.tree.command(name="ai", description="Chat with AI")
+async def ai(interaction: discord.Interaction):
+    await interaction.response.defer()
+                        
+    response = ai.models.generate_content(model="gemini-3.5-flash", contents=text)
+    await interaction.followup.send(response)
+                        """)

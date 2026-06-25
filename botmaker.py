@@ -65,7 +65,7 @@ class botmaker(QFrame):
                 token = dialog2.token.text().strip()
                 if token:
                     with open(env_path, "w") as f:
-                        f.write(f"DISCORD_BOT_TOKEN={token}\n")
+                        f.write(f"DISCORD_BOT_TOKEN={token}\nGEMINI_API_KEY=\n")
                 else:
                     MessageBox.information(self, "Error", "Please enter a valid bot token.")
                 if not os.path.exists(env_path):
@@ -74,7 +74,7 @@ class botmaker(QFrame):
                         token = dialog2.token.text().strip()
                         if token:
                             with open(env_path, "w") as f:
-                               f.write(f"DISCORD_BOT_TOKEN={token}\n")
+                               f.write(f"DISCORD_BOT_TOKEN={token}\nGEMINI_API_KEY=\n")
                         else:
                             MessageBox.information(self, "Error", "Please enter a valid bot token.")
                 self.editor.setdir(bot_name)
