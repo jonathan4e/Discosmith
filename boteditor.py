@@ -57,6 +57,10 @@ class boteditor(QFrame):
         self.layout.addWidget(self.pagetitle)
 
         self.dotenvfile = ""
+        
+
+
+        
 
         setting1 = configCard(title="Welcomer", subtitle="Sends a welcome message")
         setting1.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"WELCOMER","TRUE" if checked else "FALSE", quote_mode="never"))

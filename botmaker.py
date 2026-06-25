@@ -1,8 +1,8 @@
-from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget, QHBoxLayout
+from PySide6.QtCore import Qt, QSize
 import os
 import sys
-from qfluentwidgets import LineEdit, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action
+from qfluentwidgets import LineEdit, SingleDirectionScrollArea,  PrimaryPushButton, BodyLabel, CaptionLabel, TransparentToolButton, CardWidget, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action
 import json
 from boteditor import boteditor
 
@@ -26,11 +26,55 @@ class bottoken(MessageBox):
         self.widget.setMinimumWidth(400)
 
 
+
+
+class botslist(CardWidget):
+    def __init__(self, bot_name, parent_maker, parent=None):
+        super().__init__(parent)
+        self.setObjectName("botslist")
+        self.bot_name = bot_name
+        self.parent_maker = parent_maker
+        self.hlayout = QHBoxLayout(self)
+        self.vlayout = QVBoxLayout()
+
+        self.botlogo = TransparentToolButton(FIF.ROBOT, self)
+        self.botlogo.setFixedSize(48, 48)
+        self.botlogo.setIconSize(QSize(28, 28))
+
+
+        self.title = BodyLabel(bot_name, self)
+        self.subtitle = CaptionLabel(f"Created by <user>", self)
+
+        self.vlayout.setContentsMargins(0,0,0,0)
+        self.vlayout.addSpacing(2)
+        self.vlayout.addWidget(self.title,0, Qt.AlignVCenter)
+        self.vlayout.addWidget(self.subtitle,0, Qt.AlignVCenter)
+
+        self.open = PrimaryPushButton("Open", self)
+        self.open.clicked.connect(self.openbot)
+
+        self.more = TransparentToolButton(FIF.MORE, self)
+        self.more.setFixedSize(32,32)
+
+
+        self.hlayout.setContentsMargins(15,12,5,12)
+        self.hlayout.setSpacing(15)
+        self.hlayout.addWidget(self.botlogo,0, Qt.AlignVCenter)
+        self.hlayout.addLayout(self.vlayout)
+        self.hlayout.addStretch(1)
+        self.hlayout.addWidget(self.open,0, Qt.AlignRight | Qt.AlignVCenter)
+        self.hlayout.addWidget(self.more,0, Qt.AlignRight | Qt.AlignVCenter)
+    
+
+    def openbot(self):
+        self.parent_maker.editor.loadbot(self.bot_name)
+
+
 class botmaker(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("botmaker")
-        
+        self.root = os.path.abspath(os.getcwd())
         self.layout1 = QVBoxLayout(self)
         self.stacked_widget = QStackedWidget(self)
         self.layout1.addWidget(self.stacked_widget)
@@ -47,10 +91,38 @@ class botmaker(QFrame):
 
         layout2.addWidget(self.title)
         layout2.addWidget(self.button, alignment=Qt.AlignRight)
-        layout2.addStretch()
+
+        self.scroll = SingleDirectionScrollArea(orient=Qt.Vertical, parent=self)
+        self.scroll.setWidgetResizeable(True)
+        self.scroll.setFrameShape(QFrame.NoFrame)
+        self.scrollwidget = QWidget()
+        self.scrollayout = QVBoxLayout(self.scrollwidget)
+        self.scrollayout.setContentsMargins(0,10,0,10)
+        self.scrollayout.setSpacing(10)
+        self.scrollayout.setAlignment(Qt.AlignTop)
+        self.scroll.setWidget(self.scrollwidget)
+        layout2.addWidget(self.scroll)
+
+
+
         self.editor = boteditor(self)
         self.stacked_widget.addWidget(self.bothome) 
         self.stacked_widget.addWidget(self.editor)
+
+        self.loadbots()
+
+
+    def loadbots(self):
+        os.chdir(self.root)
+        ignored = {"__pycache__", ".venv", ".idea", ".vscode", ".github", ".git"}
+
+        for item in os.listdir(self.root):
+            item_path = os.path.join(self.root, item)
+            if os.path.isdir(item_path) and item not in ignored:
+                card = botslist(item, self, self.scrollwidget)
+                self.scrollayout.addWidget(card)
+
+
 
     def showbotname(self):
         dialog = newbot(self)
