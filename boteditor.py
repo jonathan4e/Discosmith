@@ -197,6 +197,10 @@ async def ai(interaction: discord.Interaction):
         # have to add other functions
 
 
+        with open("bot.py", "a") as f:
+            f.write("""
+bot.run(TOKEN)
+""")
 
         flyout = FlyoutView(icon=InfoBarIcon.SUCCESS, title="Bot Compiled!", content="Your bot has successfully been compiled! Check bot.py for your bot's source code. Make sure to install the required modules from requirements.txt file!", parent=self, isClosable=True)
         w = Flyout.make(flyout, self.compilebutton, self, aniType=FlyoutAnimationType.PULL_UP)

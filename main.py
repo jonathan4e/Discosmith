@@ -12,7 +12,7 @@ from settings import settings
 from botmaker import botmaker
 
 
-#note - ai was used in helping me learn a part of the code below.
+#note - ai was used in building the whole oauth functionality for this app
 
 class LocalhostTokenListener(QThread):
     token_received = Signal(str)
@@ -38,7 +38,7 @@ class LocalhostTokenListener(QThread):
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Type: text/html\r\n\r\n"
                 "<html><body style='font-family:sans-serif; text-align:center; padding-top:50px; background:#111827; color:#f3f4f6;'>"
-                "<h1>Login Successful!</h1><p>You can close this tab and return to DiscoSmith.</p>"
+                "<h1>Login Successful!</h1><p>You can close this tab and return to Discosmith.</p>"
                 "</body></html>"
             )
             conn.sendall(response.encode('utf-8'))
@@ -93,7 +93,7 @@ class MainWindow(FluentWindow):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("DiscoSmith")
+        self.setWindowTitle("Discosmith")
         
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(120, 120))

@@ -1,11 +1,12 @@
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget, QHBoxLayout
 from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QColor
 import os
 import sys
 from qfluentwidgets import LineEdit, SingleDirectionScrollArea,  PrimaryPushButton, BodyLabel, CaptionLabel, TransparentToolButton, CardWidget, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action
 import json
 from boteditor import boteditor
-
+import shutil
 
 class newbot(MessageBox):
     def __init__(self, parent=None):
@@ -56,6 +57,11 @@ class botslist(CardWidget):
         self.more = TransparentToolButton(FIF.MORE, self)
         self.more.setFixedSize(32,32)
 
+        self.menu = RoundMenu(parent=self.more)
+        deleteicon = FIF.DELETE.icon(color = QColor(255,77,79))  #used ai to determine this specific shade
+        self.deleteaction = Action(deleteicon, "Delete", self, triggered=self.delete)
+        self.menu.addAction(self.deleteaction)
+        self.more.clicked.connect(lambda: self.menu.exec(self.more.mapToGlobal(self.more.rect().bottomLeft())))
 
         self.hlayout.setContentsMargins(15,12,5,12)
         self.hlayout.setSpacing(15)
@@ -68,6 +74,19 @@ class botslist(CardWidget):
 
     def openbot(self):
         self.parent_maker.loadbot(self.bot_name)
+    
+    def delete(self):
+        deleteconfirmation = MessageBox("Delete Bot", f"Are you sure you want to permanently delete bot {self.bot_name}?", self.parent_maker.window())
+        deleteconfirmation.yesButton.setText("Yes, Delete")
+        deleteconfirmation.cancelButton.setText("Cancel")
+
+        if deleteconfirmation.exec():
+            botpath = os.path.join(self.parent_maker.root, self.bot_name)
+            shutil.rmtree(botpath)
+
+        self.parent_maker.loadbotsincardwidget()
+
+
 
 
 class botmaker(QFrame):
