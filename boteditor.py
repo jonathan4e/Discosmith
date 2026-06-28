@@ -111,9 +111,6 @@ class boteditor(QFrame):
         targetdir = os.path.abspath(os.path.join(os.getcwd(), bot_name))
         os.makedirs(targetdir, exist_ok=True)
         os.chdir(targetdir)
-        with open(".env", "a") as f:
-            f.write("WELCOMER=FALSE\nAI=FALSE\nVC=FALSE\nMOD=FALSE\nMUSIC=FALSE\n")
-
         self.dotenvfile = os.path.join(targetdir, ".env")
         load_dotenv(self.dotenvfile)
         os.chdir(targetdir)

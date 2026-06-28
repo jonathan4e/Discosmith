@@ -33,7 +33,7 @@ async def ping(interaction: discord.Interaction):
 bot.run(TOKEN)
 """
 
-file = os.path.join(os.getcwd(), "bot.py")
+file = os.path.join(os.getcwd(), "bot.pt")
 with open(file, "w") as f:
     file.write(template)
 
@@ -108,3 +108,4 @@ async def on_member_join(member):
 """
         with open(file, "a") as f:
             f.write(welcome)
+
