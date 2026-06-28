@@ -57,30 +57,27 @@ class boteditor(QFrame):
         self.layout.addWidget(self.pagetitle)
 
         self.dotenvfile = ""
-        
 
 
-        
+        self.setting1 = configCard(title="Welcomer", subtitle="Sends a welcome message")
+        self.setting1.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"WELCOMER","TRUE" if checked else "FALSE", quote_mode="never"))
+        self.layout.addWidget(self.setting1)
 
-        setting1 = configCard(title="Welcomer", subtitle="Sends a welcome message")
-        setting1.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"WELCOMER","TRUE" if checked else "FALSE", quote_mode="never"))
-        self.layout.addWidget(setting1)
+        self.setting2 = configCard(title="AI Chat", subtitle="Chat with AI")
+        self.setting2.button.checkedChanged.connect(lambda checked: self.aichat(checked))
+        self.layout.addWidget(self.setting2)
 
-        setting2 = configCard(title="AI Chat", subtitle="Chat with AI")
-        setting2.button.checkedChanged.connect(lambda checked: self.aichat(checked))
-        self.layout.addWidget(setting2)
+        self.setting3 = configCard(title="Virtual Currency", subtitle="Add a virtual currency")
+        self.setting3.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"VC","TRUE" if checked else "FALSE",quote_mode="never"))
+        self.layout.addWidget(self.setting3)
 
-        setting3 = configCard(title="Virtual Currency", subtitle="Add a virtual currency")
-        setting3.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"VC","TRUE" if checked else "FALSE",quote_mode="never"))
-        self.layout.addWidget(setting3)
+        self.setting4 = configCard(title="Mod Commands", subtitle="Admin Mod Commands")
+        self.setting4.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"MOD","TRUE"if checked else "FALSE", quote_mode="never"))
+        self.layout.addWidget(self.setting4)
 
-        setting4 = configCard(title="Mod Commands", subtitle="Admin Mod Commands")
-        setting4.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"MOD","TRUE"if checked else "FALSE", quote_mode="never"))
-        self.layout.addWidget(setting4)
-
-        setting5 = configCard(title="Music", subtitle="Stream music in the VC")
-        setting5.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"MUSIC","TRUE" if checked else "FALSE", quote_mode="never"))
-        self.layout.addWidget(setting5)
+        self.setting5 = configCard(title="Music", subtitle="Stream music in the VC")
+        self.setting5.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"MUSIC","TRUE" if checked else "FALSE", quote_mode="never"))
+        self.layout.addWidget(self.setting5)
 
         self.compilebutton = PrimaryPushButton(FIF.SYNC, "Compile")
         self.compilebutton.clicked.connect(self.compile)
@@ -97,7 +94,8 @@ class boteditor(QFrame):
                 set_key(self.dotenvfile,"GEMINI_API_KEY",api_key, quote_mode="never")
                 set_key(self.dotenvfile,"AI","TRUE", quote_mode="never")
             else:
-                MessageBox.information(self, "Error", "Please enter a valid API key.")
+                from qfluentwidgets import MessageBox
+                MessageBox(self, "Error", "Please enter a valid API key.")
                 set_key(self.dotenvfile,"AI","FALSE", quote_mode="never")
         if not checked:
             set_key(self.dotenvfile,"AI","FALSE", quote_mode="never")
@@ -111,12 +109,35 @@ class boteditor(QFrame):
 
     def setdir(self, bot_name):
         targetdir = os.path.abspath(os.path.join(os.getcwd(), bot_name))
+        os.makedirs(targetdir, exist_ok=True)
         os.chdir(targetdir)
         with open(".env", "a") as f:
             f.write("WELCOMER=FALSE\nAI=FALSE\nVC=FALSE\nMOD=FALSE\nMUSIC=FALSE\n")
 
         self.dotenvfile = os.path.join(targetdir, ".env")
         load_dotenv(self.dotenvfile)
+        os.chdir(targetdir)
+        self.syncbuttons()
+    
+
+    def syncbuttons(self):
+        load_dotenv(self.dotenvfile)
+
+        self.setting1.button.blockSignals(True)
+        self.setting2.button.blockSignals(True)
+        self.setting3.button.blockSignals(True)
+        self.setting4.button.blockSignals(True)
+        self.setting5.button.blockSignals(True)
+        self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
+        self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
+        self.setting3.button.setChecked(os.getenv("VC") == "TRUE")
+        self.setting4.button.setChecked(os.getenv("MOD") == "TRUE")
+        self.setting5.button.setChecked(os.getenv("MUSIC") == "TRUE")
+        self.setting1.button.blockSignals(False)
+        self.setting2.button.blockSignals(False)
+        self.setting3.button.blockSignals(False)
+        self.setting4.button.blockSignals(False)
+        self.setting5.button.blockSignals(False)
 
     def compile(self):
         template = """

@@ -67,7 +67,7 @@ class botslist(CardWidget):
     
 
     def openbot(self):
-        self.parent_maker.editor.loadbot(self.bot_name)
+        self.parent_maker.loadbot(self.bot_name)
 
 
 class botmaker(QFrame):
@@ -92,16 +92,16 @@ class botmaker(QFrame):
         layout2.addWidget(self.title)
         layout2.addWidget(self.button, alignment=Qt.AlignRight)
 
-        self.scroll = SingleDirectionScrollArea(orient=Qt.Vertical, parent=self)
-        self.scroll.setWidgetResizeable(True)
-        self.scroll.setFrameShape(QFrame.NoFrame)
+        self.scrollarea = SingleDirectionScrollArea(orient=Qt.Vertical, parent=self)
+        self.scrollarea.setWidgetResizable(True)
+        self.scrollarea.setFrameShape(QFrame.NoFrame)
         self.scrollwidget = QWidget()
         self.scrollayout = QVBoxLayout(self.scrollwidget)
         self.scrollayout.setContentsMargins(0,10,0,10)
         self.scrollayout.setSpacing(10)
         self.scrollayout.setAlignment(Qt.AlignTop)
-        self.scroll.setWidget(self.scrollwidget)
-        layout2.addWidget(self.scroll)
+        self.scrollarea.setWidget(self.scrollwidget)
+        layout2.addWidget(self.scrollarea)
 
 
 
@@ -109,10 +109,10 @@ class botmaker(QFrame):
         self.stacked_widget.addWidget(self.bothome) 
         self.stacked_widget.addWidget(self.editor)
 
-        self.loadbots()
+        self.loadbotsincardwidget()
 
 
-    def loadbots(self):
+    def loadbotsincardwidget(self):
         os.chdir(self.root)
         ignored = {"__pycache__", ".venv", ".idea", ".vscode", ".github", ".git"}
 
@@ -121,6 +121,12 @@ class botmaker(QFrame):
             if os.path.isdir(item_path) and item not in ignored:
                 card = botslist(item, self, self.scrollwidget)
                 self.scrollayout.addWidget(card)
+
+    def loadbot(self, bot_name):
+        os.chdir(self.root)
+        self.editor.setdir(bot_name)
+        self.editor.setbotname(bot_name)
+        self.stacked_widget.setCurrentWidget(self.editor)
 
 
 
