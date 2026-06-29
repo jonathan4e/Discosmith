@@ -67,8 +67,8 @@ class boteditor(QFrame):
         self.setting2.button.checkedChanged.connect(lambda checked: self.aichat(checked))
         self.layout.addWidget(self.setting2)
 
-        self.setting3 = configCard(title="Virtual Currency", subtitle="Add a virtual currency")
-        self.setting3.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"VC","TRUE" if checked else "FALSE",quote_mode="never"))
+        self.setting3 = configCard(title="Giveaway", subtitle="Start custom giveaways")
+        self.setting3.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"GA","TRUE" if checked else "FALSE",quote_mode="never"))
         self.layout.addWidget(self.setting3)
 
         self.setting4 = configCard(title="Mod Commands", subtitle="Admin Mod Commands")
@@ -127,7 +127,7 @@ class boteditor(QFrame):
         self.setting5.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
-        self.setting3.button.setChecked(os.getenv("VC") == "TRUE")
+        self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
         self.setting4.button.setChecked(os.getenv("MOD") == "TRUE")
         self.setting5.button.setChecked(os.getenv("MUSIC") == "TRUE")
         self.setting1.button.blockSignals(False)
@@ -168,7 +168,7 @@ async def ping(interaction: discord.Interaction):
         
         welcome = os.getenv("WELCOMER")
         ai = os.getenv("AI")
-        vc = os.getenv("VC")
+        ga = os.getenv("GA")
         mod = os.getenv("MOD")
         music = os.getenv("MUSIC")
 
@@ -189,12 +189,55 @@ ai = genai.Client(api_key = os.getenv("GEMINI_API_KEY"))
 async def ai(interaction: discord.Interaction):
     await interaction.response.defer()
                         
-    response = ai.models.generate_content(model="gemini-3.5-flash", contents=prompt)
+    response = ai.models.generate_content(model="gemini-3.5-flash", content=prompt)
     await interaction.followup.send(response.text)
                         """)
         
 
-        # have to add other functions
+        if ga == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+import asyncio
+import random
+import time
+
+@bot.tree.command(name="giveaway", description="Start a giveaway")
+@discord.app_commands.checks.has_permissions(administrator=True)
+async def giveaway(interaction: discord.Interaction, time_days: int, prize: str):
+    entries = []
+    seconds = time_days * 86400                    
+    endtime = int(time.time()) + seconds
+
+
+    embed = discord.Embed(title="Giveaway for {prize}!", description=f"Ends in <t:{end_time}:R>. Click the button below to enter!", color=0x109319 )
+    view = discord.ui.View(timeout=None)
+    button = discord.ui.Button(label="Join Giveaway 🎉", style=discord.ButtonStyle.success)
+
+    async def callback(btn_interaction: discord.Interaction):
+        if btn_interaction.user.id not in entries:
+            entries.append(btn_interaction.user.id)
+            await btn_interaction.response.send_message("🎉 You have entered the giveaway!", ephemeral=True)
+        else:
+            await btn_interaction.response.send_message("You have already entered!", ephemeral=True)
+
+    button.callback = callback
+    view.add_item(button)
+    await interaction.response.send_message(embed=embed, view=view)
+    await asyncio.sleep(seconds)
+
+    button.disabled=True
+    button.label = "Giveaway ended"
+    button.style = discord.ButtonStyle.secondary
+
+    ga_msg = await interaction.original_response()
+    await ga_msg.edit(view=view)
+
+    if entries:
+        winner = random.choice(entries)
+        await interaction.channel.send(f"🎉 The giveaway has ended! The winner is <@{winner}>! Congrats on winning {prize}!")
+    else:
+        await interaction.channel.send(f"Giveaway concluded. No one entered the giveaway.")
+""")
 
 
         with open("bot.py", "a") as f:
