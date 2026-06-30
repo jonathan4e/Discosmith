@@ -240,6 +240,47 @@ async def giveaway(interaction: discord.Interaction, time_days: int, prize: str)
 """)
 
 
+        if mod == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+
+@bot.hybrid_command(name="kick", description="Kick a member from the server")
+@commands.has_permissions(kick_members=True)
+async def kick(ctx, member: discord.Member, reason="No reason provided"):
+    await member.kick(reason=reason)
+    await ctx.send(f"{member} has been kicked from the server. Reason: {reason}")
+
+@bot.hybrid_command(name="ban", description="Ban a member from the server")
+@commands.has_permissions(ban_members=True)
+async def ban(ctx, member: discord.Member, reason="No reason provided"):
+    await member.ban(reason=reason)
+    await ctx.send(f"{member} has been banned from the server. Reason: {reason}")
+
+@bot.hybrid_command(name="timeout", description="Timeout a member from the server")
+@commands.has_permissions(moderate_member=True)
+async def timeout(ctx, member: discord.Member, minutes: int=5, reason="No reason provided"):
+    duration=datetime.timedelta(minutes=minutes)
+    await member.timeout(duration, reason=reason)
+    await ctx.send(f"{member} has been timed out for {minutes} minutes. Reason: {reason}")
+                        
+@bot.hybrid_command(name="untimout", description="Untimeout a member from the server")
+@commands.has_permissions(moderate_members=True)
+async def untimeout(ctx, member: discord.Member):
+    await member.timeout(None)
+    await ctx.send(f"{member} has been untimed out.")
+                        
+@bot.event
+async def command_error(ctx, error):
+    if isinstance(error, commands.MissingPermissions):
+        await ctx.send("You do not have the required permissions to use this command.")
+    if ininstance(error, commands.CommandNotFound):
+        await ctx.send("Command not found.")
+
+
+""")
+
+
+
         with open("bot.py", "a") as f:
             f.write("""
 bot.run(TOKEN)
@@ -248,3 +289,7 @@ bot.run(TOKEN)
         flyout = FlyoutView(icon=InfoBarIcon.SUCCESS, title="Bot Compiled!", content="Your bot has successfully been compiled! Check bot.py for your bot's source code. Make sure to install the required modules from requirements.txt file!", parent=self, isClosable=True)
         w = Flyout.make(flyout, self.compilebutton, self, aniType=FlyoutAnimationType.PULL_UP)
         flyout.closed.connect(w.close)
+
+
+
+
