@@ -80,6 +80,7 @@ class boteditor(QFrame):
         self.layout.addWidget(self.setting5)
 
         self.compilebutton = PrimaryPushButton(FIF.SYNC, "Compile")
+        self.compilebutton.setFixedWidth(120)
         self.compilebutton.clicked.connect(self.compile)
         self.layout.addWidget(self.compilebutton)
 
@@ -105,7 +106,7 @@ class boteditor(QFrame):
         
         self.pagetitle.setText(f"Editing Bot : {bot_name}")
         with open("requirements.txt", "w") as f:
-            f.write("discord\ngoogle")
+            f.write("discord\ngoogle\nyt-dlp")
 
     def setdir(self, bot_name):
         targetdir = os.path.abspath(os.path.join(os.getcwd(), bot_name))
@@ -149,6 +150,7 @@ TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 intents = discord.Intents.default()
 intents.members = True 
+intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
@@ -192,10 +194,13 @@ async def ai(interaction: discord.Interaction):
     response = ai.models.generate_content(model="gemini-3.5-flash", content=prompt)
     await interaction.followup.send(response.text)
                         """)
-        
+                
+        else:
+            pass
+
 
         if ga == "TRUE":
-            with open("bot.py", "a") as f:
+            with open("bot.py", "a", encoding="utf-8") as f:
                 f.write("""
 import asyncio
 import random
@@ -238,11 +243,13 @@ async def giveaway(interaction: discord.Interaction, time_days: int, prize: str)
     else:
         await interaction.channel.send(f"Giveaway concluded. No one entered the giveaway.")
 """)
-
+        else:
+            pass
 
         if mod == "TRUE":
             with open("bot.py", "a") as f:
                 f.write("""
+import datetime
 
 @bot.hybrid_command(name="kick", description="Kick a member from the server")
 @commands.has_permissions(kick_members=True)
@@ -273,18 +280,48 @@ async def untimeout(ctx, member: discord.Member):
 async def command_error(ctx, error):
     if isinstance(error, commands.MissingPermissions):
         await ctx.send("You do not have the required permissions to use this command.")
-    if ininstance(error, commands.CommandNotFound):
+    if isinstance(error, commands.CommandNotFound):
         await ctx.send("Command not found.")
 
 
 """)
+        
+        else:
+            pass
+
+        if music == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+import yt_dlp
+
+ytdl = yt_dlp.YoutubeDL({"format": "bestaudio/best", "noplaylist": True, "default_search": "ytsearch"})
+
+@bot.tree.command(name="play", description="Play a song in the VC")
+async def play(interaction: discord.Interaction, search: str):
+    await interaction.response.defer()
+    channel = interaction.user.voice.channel
+    vc = await channel.connect() if not interaction.guild.voice_client else interaction.guild.voice_client
+    info = ytdl.extract_info(search, download = False)
+    if "entries" in info:
+        info = info["entries"][0]
 
 
+    url = info["url"]
+    vc.play(discord.FFmpegPCMAudio(url, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5", options="-vn"))
+    await interaction.followup.send(f"Now playing: {info["title"]}")
+
+
+""")
+                
+        else:
+            pass
 
         with open("bot.py", "a") as f:
             f.write("""
 bot.run(TOKEN)
 """)
+            
+
 
         flyout = FlyoutView(icon=InfoBarIcon.SUCCESS, title="Bot Compiled!", content="Your bot has successfully been compiled! Check bot.py for your bot's source code. Make sure to install the required modules from requirements.txt file!", parent=self, isClosable=True)
         w = Flyout.make(flyout, self.compilebutton, self, aniType=FlyoutAnimationType.PULL_UP)
@@ -292,4 +329,8 @@ bot.run(TOKEN)
 
 
 
+
+# joke command to be added soon, along with 
+# try expect commands to be added in many places in the code
+# deploy button, add bot to server button and send message function to be implemented soon.
 
