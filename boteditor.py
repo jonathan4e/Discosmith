@@ -79,6 +79,10 @@ class boteditor(QFrame):
         self.setting5.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"MUSIC","TRUE" if checked else "FALSE", quote_mode="never"))
         self.layout.addWidget(self.setting5)
 
+        self.setting6 = configCard(title="Joke", subtitle="Tell a joke")
+        self.setting6.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "JOKE", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.layout.addWidget(self.setting6)
+
         self.compilebutton = PrimaryPushButton(FIF.SYNC, "Compile")
         self.compilebutton.setFixedWidth(120)
         self.compilebutton.clicked.connect(self.compile)
@@ -126,16 +130,19 @@ class boteditor(QFrame):
         self.setting3.button.blockSignals(True)
         self.setting4.button.blockSignals(True)
         self.setting5.button.blockSignals(True)
+        self.setting6.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
         self.setting4.button.setChecked(os.getenv("MOD") == "TRUE")
         self.setting5.button.setChecked(os.getenv("MUSIC") == "TRUE")
+        self.setting6.button.setChecked(os.getenv("JOKE") == "TRUE")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
         self.setting4.button.blockSignals(False)
         self.setting5.button.blockSignals(False)
+        self.setting6.button.blockSignals(False)
 
     def compile(self):
         template = """
@@ -173,6 +180,7 @@ async def ping(interaction: discord.Interaction):
         ga = os.getenv("GA")
         mod = os.getenv("MOD")
         music = os.getenv("MUSIC")
+        joke = os.getenv("JOKE")
 
         if welcome == "TRUE":
             with open("bot.py", "a") as f:
@@ -315,6 +323,20 @@ async def play(interaction: discord.Interaction, search: str):
                 
         else:
             pass
+
+
+        if joke == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+@bot.hybrid_command(name="joke", description="Tell a joke")
+@async def joke(interaction: discord.Interaction):
+    data = requests.get("https://official-joke-api.appspot.com/random_joke").json()
+    await interaction.response.send_message(f"{data["setup"]} - data["punchline"]")
+
+""")
+        else:
+            pass
+
 
         with open("bot.py", "a") as f:
             f.write("""
