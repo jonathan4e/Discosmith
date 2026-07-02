@@ -136,6 +136,10 @@ class boteditor(QFrame):
         self.setting7.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "RPS", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.layout.addWidget(self.setting7)
 
+        self.setting8 = configCard(title="Quote", subtitle="Get a random quote")
+        self.setting8.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "QUOTE", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.layout.addWidget(self.setting8)
+
         self.layout.addStretch(1)
 
 
@@ -191,6 +195,7 @@ class boteditor(QFrame):
         self.setting5.button.blockSignals(True)
         self.setting6.button.blockSignals(True)
         self.setting7.button.blockSignals(True)
+        self.setting8.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
@@ -198,6 +203,7 @@ class boteditor(QFrame):
         self.setting5.button.setChecked(os.getenv("MUSIC") == "TRUE")
         self.setting6.button.setChecked(os.getenv("JOKE") == "TRUE")
         self.setting7.button.setChecked(os.getenv("RPS") == "TRUE")
+        self.setting8.button.setChecked(os.getenv("QUOTE") == "TRUE")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
@@ -205,6 +211,7 @@ class boteditor(QFrame):
         self.setting5.button.blockSignals(False)
         self.setting6.button.blockSignals(False)
         self.setting7.button.blockSignals(False)
+        self.setting8.button.blockSignals(False)
 
 
     def compile(self):
@@ -245,6 +252,7 @@ async def ping(interaction: discord.Interaction):
         music = os.getenv("MUSIC")
         joke = os.getenv("JOKE")
         rps = os.getenv("RPS")
+        quote = os.getenv("QUOTE")
 
         if welcome == "TRUE":
             with open("bot.py", "a") as f:
@@ -393,9 +401,10 @@ async def play(interaction: discord.Interaction, search: str):
             with open("bot.py", "a") as f:
                 f.write("""
 @bot.hybrid_command(name="joke", description="Tell a joke")
-@async def joke(interaction: discord.Interaction):
+@async def joke(ctx):
+    await ctx.defer()
     data = requests.get("https://official-joke-api.appspot.com/random_joke").json()
-    await interaction.response.send_message(f"{data["setup"]} - data["punchline"]")
+    await ctx.send(f"{data["setup"]} - data["punchline"]")
 
 """)
         else:
@@ -430,6 +439,22 @@ async def rps(ctx, choice: str):
             pass
         
 
+        if quote == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+@bot.hybrid_command(name="quote", description="Get a random quote")
+async def quote(ctx):
+    await ctx.response.defer()
+    data = requests.get("https://api.quotable.io/random").json()
+    await ctx.send(f'"{data["content"]}" — {data["author"]}')
+
+
+""")
+
+        else:
+            pass
+
+
         with open("bot.py", "a") as f:
             f.write("""
 bot.run(TOKEN)
@@ -445,3 +470,6 @@ bot.run(TOKEN)
         self.compile()
         os.startfile("bot.py")
 
+
+
+#the nights
