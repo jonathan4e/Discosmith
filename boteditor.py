@@ -140,6 +140,24 @@ class boteditor(QFrame):
         self.setting8.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "QUOTE", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.layout.addWidget(self.setting8)
 
+
+        messagelayout = QVBoxLayout()
+        messagelayout.setContentsMargins(0,0,0,0)
+        messagelayout.setSpacing(12)
+
+        self.messageline = LineEdit(self)
+        self.messageline.setPlaceholderText("Enter custom message here...")
+        self.sendbutton = PrimaryPushButton(FIF.SEND, "Send", self)
+        self.sendbutton.setFixedWidth(120)
+        messagelayout.addWidget(self.messageline)
+        messagelayout.addWidget(self.sendbutton)
+        messagelayout.addStretch(1)
+
+
+        self.subtitle2 = CaptionLabel("Custom Message", self)
+        self.layout.addWidget(self.subtitle2)
+        self.layout.addLayout(messagelayout)
+
         self.layout.addStretch(1)
 
 
