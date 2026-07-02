@@ -1,10 +1,13 @@
+import webbrowser
+
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget, QHBoxLayout
 from PySide6.QtCore import Qt
 import os
 import sys
-from qfluentwidgets import LineEdit,Flyout, InfoBarIcon, FlyoutAnimationType,  FlyoutView, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
+from qfluentwidgets import LineEdit,Flyout, DropDownPushButton, InfoBarIcon, FlyoutAnimationType,  FlyoutView, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
 import json
 from dotenv import load_dotenv, find_dotenv, set_key
+import webbrowser
 
 
 class configCard(CardWidget):
@@ -59,6 +62,37 @@ class boteditor(QFrame):
         self.dotenvfile = ""
 
 
+        button_layout = QHBoxLayout()
+        button_layout.setContentsMargins(0,0,0,0)
+        button_layout.setSpacing(10)
+        button_layout.addStretch(1)
+
+
+        self.compilebutton = PrimaryPushButton(FIF.SYNC, "Compile")
+        self.compilebutton.setFixedWidth(120)
+        self.compilebutton.clicked.connect(self.compile)
+        button_layout.addWidget(self.compilebutton, alignment=Qt.AlignRight)
+
+        self.deploybutton = DropDownPushButton(FIF.MAIL, "Deploy")
+        self.deploybutton.setFixedWidth(120)
+
+        menu = RoundMenu(parent=self.deploybutton)
+        menu.addAction(Action(FIF.ADD, "Deploy on JustRunMy.App", self, triggered=lambda: webbrowser.open("https://justrunmy.app/discord-bots")))
+        menu.addAction(Action(FIF.ADD, "Deploy on WispByte", self, triggered=lambda: webbrowser.open("https://wispbyte.com/client")))
+        menu.addAction(Action(FIF.ADD, "Deploy on fps.me", self, triggered=lambda: webbrowser.open("https://fps.ms/free-discord-bot-hosting/")))
+        menu.addAction(Action(FIF.ADD, "Deploy on Replit", self, triggered=lambda: webbrowser.open("https://replit.com/")))
+        menu.addAction(Action(FIF.ADD, "Deploy on Railway", self, triggered=lambda: webbrowser.open("https://railway.app/")))
+        menu.addAction(Action(FIF.ADD, "Deploy on Render", self, triggered=lambda: webbrowser.open("https://render.com/")))
+
+        menu.addSeparator()
+        menu.addAction(Action(FIF.ADD, "Deploy locally", self, triggered=lambda: self.localdeploy()))
+
+        self.deploybutton.setMenu(menu)
+        button_layout.addWidget(self.deploybutton, alignment=Qt.AlignRight)
+
+        self.layout.addLayout(button_layout)
+
+
         self.setting1 = configCard(title="Welcomer", subtitle="Sends a welcome message")
         self.setting1.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"WELCOMER","TRUE" if checked else "FALSE", quote_mode="never"))
         self.layout.addWidget(self.setting1)
@@ -83,13 +117,12 @@ class boteditor(QFrame):
         self.setting6.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "JOKE", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.layout.addWidget(self.setting6)
 
-        self.compilebutton = PrimaryPushButton(FIF.SYNC, "Compile")
-        self.compilebutton.setFixedWidth(120)
-        self.compilebutton.clicked.connect(self.compile)
-        self.layout.addWidget(self.compilebutton)
-
         self.layout.addStretch(1)
     
+
+    def localdeploy(self):
+        pass
+
 
     def aichat(self, checked):
         if checked:
@@ -350,9 +383,6 @@ bot.run(TOKEN)
         flyout.closed.connect(w.close)
 
 
-
-
-# joke command to be added soon, along with 
 # try expect commands to be added in many places in the code
-# deploy button, add bot to server button and send message function to be implemented soon.
+# add rps game also
 
