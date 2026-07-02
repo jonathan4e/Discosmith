@@ -15,5 +15,6 @@ class dashboard(QFrame):
         self.layout.addStretch()
         self.setLayout(self.layout)
 
-        self.welcome = MessageBox("Welcome to Discosmith!", "Discosmith is a FluentUI based Discord bot maker that allows you to create your own discord bots with ease.)
+        self.welcome = MessageBox("Welcome to Discosmith!", "Discosmith is a FluentUI based Discord bot maker that allows you to create your own discord bots with ease.", self)
+        self.welcome.exec()
         
