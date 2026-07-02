@@ -140,23 +140,9 @@ class boteditor(QFrame):
         self.setting8.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "QUOTE", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.layout.addWidget(self.setting8)
 
-
-        messagelayout = QVBoxLayout()
-        messagelayout.setContentsMargins(0,0,0,0)
-        messagelayout.setSpacing(12)
-
-        self.messageline = LineEdit(self)
-        self.messageline.setPlaceholderText("Enter custom message here...")
-        self.sendbutton = PrimaryPushButton(FIF.SEND, "Send", self)
-        self.sendbutton.setFixedWidth(120)
-        messagelayout.addWidget(self.messageline)
-        messagelayout.addWidget(self.sendbutton)
-        messagelayout.addStretch(1)
-
-
-        self.subtitle2 = CaptionLabel("Custom Message", self)
-        self.layout.addWidget(self.subtitle2)
-        self.layout.addLayout(messagelayout)
+        self.setting9 = configCard(title="Reminder", subtitle="Set a reminder")
+        self.setting9.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "REMINDER", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.layout.addWidget(self.setting9)
 
         self.layout.addStretch(1)
 
@@ -214,6 +200,7 @@ class boteditor(QFrame):
         self.setting6.button.blockSignals(True)
         self.setting7.button.blockSignals(True)
         self.setting8.button.blockSignals(True)
+        self.setting9.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
@@ -222,6 +209,7 @@ class boteditor(QFrame):
         self.setting6.button.setChecked(os.getenv("JOKE") == "TRUE")
         self.setting7.button.setChecked(os.getenv("RPS") == "TRUE")
         self.setting8.button.setChecked(os.getenv("QUOTE") == "TRUE")
+        self.setting9.button.setChecked(os.getenv("REMINDER") == "TRUE")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
@@ -230,6 +218,7 @@ class boteditor(QFrame):
         self.setting6.button.blockSignals(False)
         self.setting7.button.blockSignals(False)
         self.setting8.button.blockSignals(False)
+        self.setting9.button.blockSignals(False)
 
 
     def compile(self):
@@ -271,6 +260,7 @@ async def ping(interaction: discord.Interaction):
         joke = os.getenv("JOKE")
         rps = os.getenv("RPS")
         quote = os.getenv("QUOTE")
+        reminder = os.getenv("REMINDER")
 
         if welcome == "TRUE":
             with open("bot.py", "a") as f:
@@ -473,6 +463,21 @@ async def quote(ctx):
             pass
 
 
+        if reminder == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+@bot.hybrid_command(name="reminder", description="Set a reminder")
+async def reminder(ctx, time: int, message: str):
+    await ctx.send(f"Reminder set for {time} seconds from now.")
+    await asyncio.sleep(time)
+    await ctx.send(f"Reminder: {message} ({ctx.author.mention})")
+
+""")
+                
+        else:
+            pass
+
+
         with open("bot.py", "a") as f:
             f.write("""
 bot.run(TOKEN)
@@ -488,6 +493,4 @@ bot.run(TOKEN)
         self.compile()
         os.startfile("bot.py")
 
-
-
-#the nights
+# the nights
