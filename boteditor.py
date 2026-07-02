@@ -132,6 +132,10 @@ class boteditor(QFrame):
         self.setting6.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "JOKE", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.layout.addWidget(self.setting6)
 
+        self.setting7 = configCard(title="RPS Game", subtitle="Play Rock Paper Scissors")
+        self.setting7.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "RPS", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.layout.addWidget(self.setting7)
+
         self.layout.addStretch(1)
 
 
@@ -186,18 +190,22 @@ class boteditor(QFrame):
         self.setting4.button.blockSignals(True)
         self.setting5.button.blockSignals(True)
         self.setting6.button.blockSignals(True)
+        self.setting7.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
         self.setting4.button.setChecked(os.getenv("MOD") == "TRUE")
         self.setting5.button.setChecked(os.getenv("MUSIC") == "TRUE")
         self.setting6.button.setChecked(os.getenv("JOKE") == "TRUE")
+        self.setting7.button.setChecked(os.getenv("RPS") == "TRUE")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
         self.setting4.button.blockSignals(False)
         self.setting5.button.blockSignals(False)
         self.setting6.button.blockSignals(False)
+        self.setting7.button.blockSignals(False)
+
 
     def compile(self):
         template = """
@@ -236,6 +244,7 @@ async def ping(interaction: discord.Interaction):
         mod = os.getenv("MOD")
         music = os.getenv("MUSIC")
         joke = os.getenv("JOKE")
+        rps = os.getenv("RPS")
 
         if welcome == "TRUE":
             with open("bot.py", "a") as f:
@@ -393,6 +402,34 @@ async def play(interaction: discord.Interaction, search: str):
             pass
 
 
+        if rps == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+@bot.hybrid_command(name="rps", description="Play Rock Paper Scissors")
+@app_commands.choices(choice = [
+    app_commands.Choice(name="Rock", value="rock"),
+    app_commands.Choice(name="Paper", value="paper"),
+    app_commands.Choice(name="Scissors", value="scissors")
+])
+                        
+async def rps(ctx, choice: str):
+    user = choice.lower()
+    botchoice = random.choice(["rock", "paper", "scissors"])
+
+    if user == botchoice:
+        await ctx.send(f"It's a tie! We both chose {user}.")
+    elif (user == "rock" and botchoice == "scissors") or (user == "paper" and botchoice == "rock") or (user == "scissors" and botchoice == "paper"):
+        await ctx.send(f"You win! You chose {user} and I chose {botchoice}.")
+    else:
+        await ctx.send(f"You lose! You chose {user} and I chose {botchoice}.")
+                  
+""")
+
+
+        else:
+            pass
+        
+
         with open("bot.py", "a") as f:
             f.write("""
 bot.run(TOKEN)
@@ -407,8 +444,4 @@ bot.run(TOKEN)
     def localdeploy(self):
         self.compile()
         os.startfile("bot.py")
-
-
-# try expect commands to be added in many places in the code
-# add rps game also
 
