@@ -4,11 +4,21 @@ from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget, QHBo
 from PySide6.QtCore import Qt
 import os
 import sys
-from qfluentwidgets import LineEdit,Flyout, DropDownPushButton, InfoBarIcon, FlyoutAnimationType,  FlyoutView, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
+from qfluentwidgets import LineEdit,Flyout, PushButton, DropDownPushButton, InfoBarIcon, FlyoutAnimationType,  FlyoutView, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
 import json
 from dotenv import load_dotenv, find_dotenv, set_key
 import webbrowser
 
+
+
+class newbot(MessageBox):
+    def __init__(self, parent=None):
+        super().__init__("Add Bot", "Enter bot ClientID:", parent)
+        self.name = LineEdit(self)
+        self.name.setPlaceholderText("clientid")
+        self.name.setClearButtonEnabled(True)
+        self.textLayout.addWidget(self.name)
+        self.widget.setMinimumWidth(400)
 
 class configCard(CardWidget):
     def __init__(self, title, subtitle, parent=None):
@@ -73,7 +83,7 @@ class boteditor(QFrame):
         self.compilebutton.clicked.connect(self.compile)
         button_layout.addWidget(self.compilebutton, alignment=Qt.AlignRight)
 
-        self.deploybutton = DropDownPushButton(FIF.MAIL, "Deploy")
+        self.deploybutton = DropDownPushButton(FIF.TILES, "Deploy")
         self.deploybutton.setFixedWidth(120)
 
         menu = RoundMenu(parent=self.deploybutton)
@@ -90,6 +100,11 @@ class boteditor(QFrame):
         self.deploybutton.setMenu(menu)
         button_layout.addWidget(self.deploybutton, alignment=Qt.AlignRight)
 
+        
+        self.addbotbutton = PushButton(FIF.SHARE, "Invite Bot", self)
+        self.addbotbutton.setFixedWidth(120)
+        self.addbotbutton.clicked.connect(lambda: self.dialogbit())
+        button_layout.addWidget(self.addbotbutton, alignment=Qt.AlignRight)
         self.layout.addLayout(button_layout)
 
 
@@ -118,10 +133,17 @@ class boteditor(QFrame):
         self.layout.addWidget(self.setting6)
 
         self.layout.addStretch(1)
-    
 
-    def localdeploy(self):
-        pass
+
+
+    def dialogbit(self):
+        dialog = newbot(self)
+        dialog.exec()
+        if dialog.exec():
+            clientID = dialog.name.text().strip()
+            webbrowser.open(f"https://discord.com/oauth2/authorize?client_id={clientID}&scope=bot%20applications.commands&permissions=8")
+        else:
+            MessageBox.information(self, "Error", "Please enter a valid ClientID.")
 
 
     def aichat(self, checked):
@@ -381,6 +403,10 @@ bot.run(TOKEN)
         flyout = FlyoutView(icon=InfoBarIcon.SUCCESS, title="Bot Compiled!", content="Your bot has successfully been compiled! Check bot.py for your bot's source code. Make sure to install the required modules from requirements.txt file!", parent=self, isClosable=True)
         w = Flyout.make(flyout, self.compilebutton, self, aniType=FlyoutAnimationType.PULL_UP)
         flyout.closed.connect(w.close)
+
+    def localdeploy(self):
+        self.compile()
+        os.startfile("bot.py")
 
 
 # try expect commands to be added in many places in the code
