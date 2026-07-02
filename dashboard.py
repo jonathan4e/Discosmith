@@ -13,3 +13,7 @@ class dashboard(QFrame):
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(self.title)
         self.layout.addStretch()
+        self.setLayout(self.layout)
+
+        self.welcome = MessageBox("Welcome to Discosmith!", "Discosmith is a FluentUI based Discord bot maker that allows you to create your own discord bots with ease.)
+        
