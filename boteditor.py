@@ -165,6 +165,10 @@ class boteditor(QFrame):
         self.setting11.button.checkedChanged.connect(lambda checked:  set_key(self.dotenvfile, "SERVERINFO", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.scrolllayout.addWidget(self.setting11)
 
+        self.setting12 = configCard(title="User Info", subtitle="Get user information")
+        self.setting12.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "USERINFO", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.scrolllayout.addWidget(self.setting12)
+
         self.scrolllayout.addStretch(1)
         self.scrollarea.setWidget(self.scrollwidget)
         self.layout.addWidget(self.scrollarea)
@@ -226,6 +230,7 @@ class boteditor(QFrame):
         self.setting9.button.blockSignals(True)
         self.setting10.button.blockSignals(True)
         self.setting11.button.blockSignals(True)
+        self.setting12.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
@@ -237,6 +242,7 @@ class boteditor(QFrame):
         self.setting9.button.setChecked(os.getenv("REMINDER") == "TRUE")
         self.setting10.button.setChecked(os.getenv("COIN") == "TRUE")
         self.setting11.button.setChecked(os.getenv("SERVERINFO") == "TRUE")
+        self.setting12.button.setChecked(os.getenv("USERINFO") == "TRUE")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
@@ -248,6 +254,7 @@ class boteditor(QFrame):
         self.setting9.button.blockSignals(False)
         self.setting10.button.blockSignals(False)
         self.setting11.button.blockSignals(False)
+        self.setting12.button.blockSignals(False)
 
 
     def compile(self):
@@ -294,6 +301,7 @@ async def ping(interaction: discord.Interaction):
         reminder = os.getenv("REMINDER")
         coin = os.getenv("COIN")
         serverinfo = os.getenv("SERVERINFO")
+        userinfo = os.getenv("USERINFO")
 
 
         if welcome == "TRUE":
@@ -539,7 +547,7 @@ async def info(ctx):
     embed.add_field(name="Server ID", value=guild.id, inline=False)
     embed.add_field(name="Owner", value=guild.owner, inline=False)
     embed.add_field(name="Member Count", value=guild.member_count, inline=False)
-    embed.add_field(name="Created on", value=guild.created_at.strftime("%Y-%m-%d), inline=False)
+    embed.add_field(name="Created on", value=guild.created_at.strftime("%Y-%m-%d"), inline=False)
     embed.add_field(name="Boost Count", value=guild.premium_subscription_count, inline=False)
     embed.set_footer(text=f"Requested by {ctx.author}")
     if guild.icon:
@@ -550,11 +558,40 @@ async def info(ctx):
 """)
 
 
+
+        else:
+            pass
+
+        if userinfo == "TRUE":
+            with open ("bot.py", "a") as f:
+                f.write("""
+
+@bot.hybrid_command(name="userinfo", description="Get user info")
+async def userinfo(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.author
+    else:
+        member = member
+    embed = discord.Embed(title=f"{member.name} Info", color=member.color)      
+    embed.set_thumbnail(url=member.avatar.url)
+    embed.add_field(name="Username", value=member.name, inline=False)
+    embed.add_field(name="Display Name", value=member.display_name, inline=False)
+    embed.add_field(name="Joined Server", value=member.joined_at.strftime("%Y-%m-%d"), inline=False)
+    embed.add_field(name="Joined Discord", value=member.created_at.strftime("%Y-%m-%d"), inline=False)
+
+    await ctx.send(content=f"<@{message.author.id}>", embed=embed)        
+                        
+""")
+                
+        else:
+            pass
+
+
+
         with open("bot.py", "a") as f:
             f.write("""
 bot.run(TOKEN)
 """)
-            
 
 
         flyout = FlyoutView(icon=InfoBarIcon.SUCCESS, title="Bot Compiled!", content="Your bot has successfully been compiled! Check bot.py for your bot's source code. Make sure to install the required modules from requirements.txt file!", parent=self, isClosable=True)
@@ -563,5 +600,7 @@ bot.run(TOKEN)
 
     def localdeploy(self):
         self.compile()
-        os.startfile("bot.py")
+        os.run("pip install -r requirements.txt")
+        os.run("python bot.py")
+
 
