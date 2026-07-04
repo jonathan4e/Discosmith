@@ -1,10 +1,8 @@
-import webbrowser
-
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget, QHBoxLayout
 from PySide6.QtCore import Qt
 import os
 import sys
-from qfluentwidgets import LineEdit,Flyout, PushButton, DropDownPushButton, InfoBarIcon, FlyoutAnimationType,  FlyoutView, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
+from qfluentwidgets import LineEdit,Flyout, PushButton, DropDownPushButton, SingleDirectionScrollArea, InfoBarIcon, FlyoutAnimationType,  FlyoutView, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
 import json
 from dotenv import load_dotenv, find_dotenv, set_key
 import webbrowser
@@ -26,7 +24,7 @@ class configCard(CardWidget):
         self.title = BodyLabel(title, self)
         self.subtitle = CaptionLabel(subtitle, self)
         self.button = SwitchButton(self)
-        self.more = TransparentToolButton(FIF.MORE, self)
+        #self.more = TransparentToolButton(FIF.MORE, self)
         self.hlayout = QHBoxLayout(self)
         self.vlayout = QVBoxLayout()
         
@@ -46,8 +44,8 @@ class configCard(CardWidget):
         self.hlayout.addStretch(1)
 
         self.hlayout.addWidget(self.button, 0, Qt.AlignRight)
-        self.hlayout.addWidget(self.more,0, Qt.AlignRight)
-        self.more.setFixedSize(32,32)
+        #self.hlayout.addWidget(self.more,0, Qt.AlignRight)
+        #self.more.setFixedSize(32,32)
 
 
 
@@ -108,54 +106,71 @@ class boteditor(QFrame):
         self.layout.addLayout(button_layout)
 
 
+
+        self.scrollarea = SingleDirectionScrollArea(orient=Qt.Vertical, parent=self)
+        self.scrollarea.setWidgetResizable(True)
+        self.scrollarea.setFrameShape(QFrame.NoFrame)
+        #self.scrollarea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollarea.setStyleSheet("QScrollArea{background: transparent; border: none}")
+
+        self.scrollwidget = QWidget()
+        self.scrollwidget.setStyleSheet("QWidget{background: transparent}")
+        self.scrolllayout = QVBoxLayout(self.scrollwidget)
+        self.scrolllayout.setContentsMargins(0,10,0,10)
+        self.scrolllayout.setSpacing(12)
+
+
+
         self.setting1 = configCard(title="Welcomer", subtitle="Sends a welcome message")
         self.setting1.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"WELCOMER","TRUE" if checked else "FALSE", quote_mode="never"))
-        self.layout.addWidget(self.setting1)
+        self.scrolllayout.addWidget(self.setting1)
 
         self.setting2 = configCard(title="AI Chat", subtitle="Chat with AI")
         self.setting2.button.checkedChanged.connect(lambda checked: self.aichat(checked))
-        self.layout.addWidget(self.setting2)
+        self.scrolllayout.addWidget(self.setting2)
 
         self.setting3 = configCard(title="Giveaway", subtitle="Start custom giveaways")
         self.setting3.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"GA","TRUE" if checked else "FALSE",quote_mode="never"))
-        self.layout.addWidget(self.setting3)
+        self.scrolllayout.addWidget(self.setting3)
 
         self.setting4 = configCard(title="Mod Commands", subtitle="Admin Mod Commands")
         self.setting4.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"MOD","TRUE"if checked else "FALSE", quote_mode="never"))
-        self.layout.addWidget(self.setting4)
+        self.scrolllayout.addWidget(self.setting4)
 
         self.setting5 = configCard(title="Music", subtitle="Stream music in the VC")
         self.setting5.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile,"MUSIC","TRUE" if checked else "FALSE", quote_mode="never"))
-        self.layout.addWidget(self.setting5)
+        self.scrolllayout.addWidget(self.setting5)
 
         self.setting6 = configCard(title="Joke", subtitle="Tell a joke")
         self.setting6.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "JOKE", "TRUE" if checked else "FALSE", quote_mode="never"))
-        self.layout.addWidget(self.setting6)
+        self.scrolllayout.addWidget(self.setting6)
 
         self.setting7 = configCard(title="RPS Game", subtitle="Play Rock Paper Scissors")
         self.setting7.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "RPS", "TRUE" if checked else "FALSE", quote_mode="never"))
-        self.layout.addWidget(self.setting7)
+        self.scrolllayout.addWidget(self.setting7)
 
         self.setting8 = configCard(title="Quote", subtitle="Get a random quote")
         self.setting8.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "QUOTE", "TRUE" if checked else "FALSE", quote_mode="never"))
-        self.layout.addWidget(self.setting8)
+        self.scrolllayout.addWidget(self.setting8)
 
         self.setting9 = configCard(title="Reminder", subtitle="Set a reminder")
         self.setting9.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "REMINDER", "TRUE" if checked else "FALSE", quote_mode="never"))
-        self.layout.addWidget(self.setting9)
+        self.scrolllayout.addWidget(self.setting9)
 
-        self.layout.addStretch(1)
+        self.scrolllayout.addStretch(1)
+        self.scrollarea.setWidget(self.scrollwidget)
+        self.layout.addWidget(self.scrollarea)
 
 
 
     def dialogbit(self):
         dialog = newbot(self)
-        dialog.exec()
         if dialog.exec():
             clientID = dialog.name.text().strip()
-            webbrowser.open(f"https://discord.com/oauth2/authorize?client_id={clientID}&scope=bot%20applications.commands&permissions=8")
-        else:
-            MessageBox.information(self, "Error", "Please enter a valid ClientID.")
+            if clientID:
+                webbrowser.open(f"https://discord.com/oauth2/authorize?client_id={clientID}&scope=bot%20applications.commands&permissions=8")
+            else:
+                MessageBox(self, "Error", "Please enter a valid ClientID.")
 
 
     def aichat(self, checked):
@@ -396,7 +411,7 @@ async def play(interaction: discord.Interaction, search: str):
 
     url = info["url"]
     vc.play(discord.FFmpegPCMAudio(url, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5", options="-vn"))
-    await interaction.followup.send(f"Now playing: {info["title"]}")
+    await interaction.followup.send(f"Now playing: {info["title"]} as requested by {interaction.user.mention}")
 
 
 """)
@@ -493,4 +508,3 @@ bot.run(TOKEN)
         self.compile()
         os.startfile("bot.py")
 
-# the nights
