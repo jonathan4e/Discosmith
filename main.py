@@ -12,7 +12,7 @@ from settings import settings
 from botmaker import botmaker
 
 
-#note - ai was used in building the whole oauth functionality for this app
+#note - ai was used in building the oauth functionality for this app
 
 class LocalhostTokenListener(QThread):
     token_received = Signal(str)

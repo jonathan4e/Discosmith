@@ -44,7 +44,7 @@ class botslist(CardWidget):
 
 
         self.title = BodyLabel(bot_name, self)
-        self.subtitle = CaptionLabel(f"Created by <user>", self)
+        self.subtitle = CaptionLabel(f"{os.getcwd()}", self)
 
         self.vlayout.setContentsMargins(0,0,0,0)
         self.vlayout.addSpacing(2)
@@ -110,15 +110,22 @@ class botmaker(QFrame):
         layout2.addWidget(self.title)
         layout2.addWidget(self.button, alignment=Qt.AlignRight)
 
+
         self.scrollarea = SingleDirectionScrollArea(orient=Qt.Vertical, parent=self)
         self.scrollarea.setWidgetResizable(True)
         self.scrollarea.setFrameShape(QFrame.NoFrame)
+        self.scrollarea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollarea.setStyleSheet("QScrollArea{background: transparent; border: none}")
+
         self.scrollwidget = QWidget()
+        self.scrollwidget.setStyleSheet("QWidget{background: transparent}")
+        
         self.scrollayout = QVBoxLayout(self.scrollwidget)
         self.scrollayout.setContentsMargins(0,10,0,10)
         self.scrollayout.setSpacing(10)
         self.scrollayout.setAlignment(Qt.AlignTop)
         self.scrollarea.setWidget(self.scrollwidget)
+
         layout2.addWidget(self.scrollarea)
 
 
@@ -161,7 +168,7 @@ class botmaker(QFrame):
                 token = dialog2.token.text().strip()
                 if token:
                     with open(env_path, "w") as f:
-                        f.write(f"DISCORD_BOT_TOKEN={token}\nGEMINI_API_KEY=\nWELCOMER=FALSE\nAI=FALSE\nGA=FALSE\nMOD=FALSE\nMUSIC=FALSE\nJOKE=FALSE\nRPS=FALSE\nQUOTE=FALSE\nREMINDER=FALSE\nCOIN=FALSE\nSERVERINFO=FALSE\nUSERINFO=FALSE\n")
+                        f.write(f"DISCORD_BOT_TOKEN={token}\nGEMINI_API_KEY=\nWELCOMER=FALSE\nAI=FALSE\nGA=FALSE\nMOD=FALSE\nMUSIC=FALSE\nJOKE=FALSE\nRPS=FALSE\nQUOTE=FALSE\nREMINDER=FALSE\nCOIN=FALSE\nSERVERINFO=FALSE\n")
                 else:
                     MessageBox.information(self, "Error", "Please enter a valid bot token.")
                 if not os.path.exists(env_path):
@@ -170,7 +177,7 @@ class botmaker(QFrame):
                         token = dialog2.token.text().strip()
                         if token:
                             with open(env_path, "w") as f:
-                               f.write(f"DISCORD_BOT_TOKEN={token}\nGEMINI_API_KEY=\nWELCOMER=FALSE\nAI=FALSE\nGA=FALSE\nMOD=FALSE\nMUSIC=FALSE\nJOKE=FALSE\nRPS=FALSE\nQUOTE=FALSE\nREMINDER=FALSE\nCOIN=FALSE\nSERVERINFO=FALSE\nUSERINFO=FALSE\n")
+                               f.write(f"DISCORD_BOT_TOKEN={token}\nGEMINI_API_KEY=\nWELCOMER=FALSE\nAI=FALSE\nGA=FALSE\nMOD=FALSE\nMUSIC=FALSE\nJOKE=FALSE\nRPS=FALSE\nQUOTE=FALSE\nREMINDER=FALSE\nCOIN=FALSE\nSERVERINFO=FALSE\n")
                         else:
                             MessageBox.information(self, "Error", "Please enter a valid bot token.")
                 self.editor.setdir(bot_name)
