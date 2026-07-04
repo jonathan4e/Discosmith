@@ -110,7 +110,7 @@ class boteditor(QFrame):
         self.scrollarea = SingleDirectionScrollArea(orient=Qt.Vertical, parent=self)
         self.scrollarea.setWidgetResizable(True)
         self.scrollarea.setFrameShape(QFrame.NoFrame)
-        #self.scrollarea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scrollarea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scrollarea.setStyleSheet("QScrollArea{background: transparent; border: none}")
 
         self.scrollwidget = QWidget()
@@ -156,6 +156,14 @@ class boteditor(QFrame):
         self.setting9 = configCard(title="Reminder", subtitle="Set a reminder")
         self.setting9.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "REMINDER", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.scrolllayout.addWidget(self.setting9)
+
+        self.setting10 = configCard(title="Coin flip", subtitle="Flip a coin")
+        self.setting10.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "COIN", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.scrolllayout.addWidget(self.setting10)
+
+        self.setting11 = configCard(title="Server Info", subtitle="Get server information")
+        self.setting11.button.checkedChanged.connect(lambda checked:  set_key(self.dotenvfile, "SERVERINFO", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.scrolllayout.addWidget(self.setting11)
 
         self.scrolllayout.addStretch(1)
         self.scrollarea.setWidget(self.scrollwidget)
@@ -216,6 +224,8 @@ class boteditor(QFrame):
         self.setting7.button.blockSignals(True)
         self.setting8.button.blockSignals(True)
         self.setting9.button.blockSignals(True)
+        self.setting10.button.blockSignals(True)
+        self.setting11.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
@@ -225,6 +235,8 @@ class boteditor(QFrame):
         self.setting7.button.setChecked(os.getenv("RPS") == "TRUE")
         self.setting8.button.setChecked(os.getenv("QUOTE") == "TRUE")
         self.setting9.button.setChecked(os.getenv("REMINDER") == "TRUE")
+        self.setting10.button.setChecked(os.getenv("COIN") == "TRUE")
+        self.setting11.button.setChecked(os.getenv("SERVERINFO") == "TRUE")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
@@ -234,6 +246,8 @@ class boteditor(QFrame):
         self.setting7.button.blockSignals(False)
         self.setting8.button.blockSignals(False)
         self.setting9.button.blockSignals(False)
+        self.setting10.button.blockSignals(False)
+        self.setting11.button.blockSignals(False)
 
 
     def compile(self):
@@ -243,6 +257,8 @@ import discord
 from dotenv import load_dotenv
 from google import genai 
 from discord.ext import commands
+import random
+
 
 load_dotenv()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
@@ -276,6 +292,9 @@ async def ping(interaction: discord.Interaction):
         rps = os.getenv("RPS")
         quote = os.getenv("QUOTE")
         reminder = os.getenv("REMINDER")
+        coin = os.getenv("COIN")
+        serverinfo = os.getenv("SERVERINFO")
+
 
         if welcome == "TRUE":
             with open("bot.py", "a") as f:
@@ -306,7 +325,6 @@ async def ai(interaction: discord.Interaction):
             with open("bot.py", "a", encoding="utf-8") as f:
                 f.write("""
 import asyncio
-import random
 import time
 
 @bot.tree.command(name="giveaway", description="Start a giveaway")
@@ -386,7 +404,6 @@ async def command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         await ctx.send("Command not found.")
 
-
 """)
         
         else:
@@ -424,7 +441,7 @@ async def play(interaction: discord.Interaction, search: str):
             with open("bot.py", "a") as f:
                 f.write("""
 @bot.hybrid_command(name="joke", description="Tell a joke")
-@async def joke(ctx):
+async def joke(ctx):
     await ctx.defer()
     data = requests.get("https://official-joke-api.appspot.com/random_joke").json()
     await ctx.send(f"{data["setup"]} - data["punchline"]")
@@ -491,6 +508,46 @@ async def reminder(ctx, time: int, message: str):
                 
         else:
             pass
+
+
+        if coin == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+                        
+@bot.hybrid_command(name="coinflip", description="Flip a coin")
+async def coinflip(ctx):
+    result = random.choice(["Heads", "Tails"])
+    await ctx.send(f"{result} wins!")
+                                         
+""")
+
+
+        else:
+            pass
+
+
+
+        if serverinfo == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+                        
+@bot.hybrid_command(name="info", description="Get server info")
+async def info(ctx):
+    guild = ctx.guild
+    embed = discord.Embed(title=f"{guild.name} Info", color=discord.Color.blue())
+    embed.add_field(name="Server Name", value=guild.name, inline=False)
+    embed.add_field(name="Server ID", value=guild.id, inline=False)
+    embed.add_field(name="Owner", value=guild.owner, inline=False)
+    embed.add_field(name="Member Count", value=guild.member_count, inline=False)
+    embed.add_field(name="Created on", value=guild.created_at.strftime("%Y-%m-%d), inline=False)
+    embed.add_field(name="Boost Count", value=guild.premium_subscription_count, inline=False)
+    embed.set_footer(text=f"Requested by {ctx.author}")
+    if guild.icon:
+        embed.set_thumbnail(url=guild.icon.url)
+    await ctx.send(embed=embed)
+    
+                        
+""")
 
 
         with open("bot.py", "a") as f:
