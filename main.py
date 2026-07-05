@@ -7,7 +7,6 @@ from PySide6.QtGui import QPainter, QImage, QBrush, QColor, QFont, QDesktopServi
 from PySide6.QtWidgets import QApplication
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from qfluentwidgets import FluentWindow, FluentIcon as FIF, NavigationItemPosition, SplashScreen, NavigationWidget, isDarkTheme, MessageBox
-from dashboard import dashboard
 from settings import settings
 from botmaker import botmaker
 
