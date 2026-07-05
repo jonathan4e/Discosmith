@@ -173,6 +173,10 @@ class boteditor(QFrame):
         self.setting13.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "MEME", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.scrolllayout.addWidget(self.setting13)
 
+        self.setting14 = configCard(title="Dice Roll", subtitle="Roll a dice")
+        self.setting14.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "DICE", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.scrolllayout.addWidget(self.setting14)
+
         self.scrolllayout.addStretch(1)
         self.scrollarea.setWidget(self.scrollwidget)
         self.layout.addWidget(self.scrollarea)
@@ -236,6 +240,7 @@ class boteditor(QFrame):
         self.setting11.button.blockSignals(True)
         self.setting12.button.blockSignals(True)
         self.setting13.button.blockSignals(True)
+        self.setting14.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
@@ -249,6 +254,7 @@ class boteditor(QFrame):
         self.setting11.button.setChecked(os.getenv("SERVERINFO") == "TRUE")
         self.setting12.button.setChecked(os.getenv("USERINFO") == "TRUE")
         self.setting13.button.setChecked(os.getenv("MEME") == "TRUE")
+        self.setting14.button.setChecked(os.getenv("DICE") == "TRUE")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
@@ -262,6 +268,7 @@ class boteditor(QFrame):
         self.setting11.button.blockSignals(False)
         self.setting12.button.blockSignals(False)
         self.setting13.button.blockSignals(False)
+        self.setting14.button.blockSignals(False)
 
 
     def compile(self):
@@ -310,6 +317,7 @@ async def ping(interaction: discord.Interaction):
         serverinfo = os.getenv("SERVERINFO")
         userinfo = os.getenv("USERINFO")
         meme = os.getenv("MEME")
+        dice = os.getenv("DICE")
 
 
         if welcome == "TRUE":
@@ -611,7 +619,19 @@ async def meme(ctx):
         else:
             pass
 
+    
+        if dice == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+@bot.hybrid_command(name="dice", description="Roll a dice")
+async def dice(ctx):
+    result = random.randint(1,6)
+    await ctx.send(f"You rolled a {result}!")                        
+             
+""")
 
+        else:
+            pass
 
         with open("bot.py", "a") as f:
             f.write("""
