@@ -129,7 +129,6 @@ class botmaker(QFrame):
         layout2.addWidget(self.scrollarea)
 
 
-
         self.editor = boteditor(self)
         self.stacked_widget.addWidget(self.bothome) 
         self.stacked_widget.addWidget(self.editor)

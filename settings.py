@@ -1,7 +1,5 @@
-#settings.py - Discosmith
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout
 from qfluentwidgets import TitleLabel, SwitchButton, setTheme, Theme, BodyLabel
-
 
 
 class settings(QFrame):

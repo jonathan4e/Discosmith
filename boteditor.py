@@ -181,6 +181,15 @@ class boteditor(QFrame):
         self.scrollarea.setWidget(self.scrollwidget)
         self.layout.addWidget(self.scrollarea)
 
+        self.console = QFrame(self)
+        self.console.setStyleSheet("QFrame { background-color: #202020; border-radius: 6px; border: 1px solid #2c2c2c; }")
+        self.consolelayout = QVBoxLayout(self.console)
+        self.consolelayout.setContentsMargins(10,10,10,10)
+
+        consoleheader = QHBoxLayout()
+        self.consoletitle = TitleLabel("Console", self.console)
+        self.consoletitle.setStyleSheet("color: #ffffff; font-weight: bold;")
+        self.status = CaptionLabel("● Offline", self.console)
 
 
     def dialogbit(self):
@@ -272,6 +281,7 @@ class boteditor(QFrame):
 
 
     def compile(self):
+        
         template = """
 import os
 import discord

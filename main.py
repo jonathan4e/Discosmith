@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt, QSize, QTimer, QRect, QUrl, QStandardPaths, QThre
 from PySide6.QtGui import QPainter, QImage, QBrush, QColor, QFont, QDesktopServices
 from PySide6.QtWidgets import QApplication
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from qfluentwidgets import FluentWindow, FluentIcon as FIF, NavigationItemPosition, SplashScreen, NavigationWidget, isDarkTheme
+from qfluentwidgets import FluentWindow, FluentIcon as FIF, NavigationItemPosition, SplashScreen, NavigationWidget, isDarkTheme, MessageBox
 from dashboard import dashboard
 from settings import settings
 from botmaker import botmaker
@@ -99,6 +99,7 @@ class MainWindow(FluentWindow):
         self.splashScreen.setIconSize(QSize(120, 120))
         self.splashScreen.show()
 
+
         self.appdata_dir = os.path.join(QStandardPaths.writableLocation(QStandardPaths.AppDataLocation), "discosmith")
         os.makedirs(self.appdata_dir, exist_ok=True)
         self.config_file = os.path.join(self.appdata_dir, "session.json")
@@ -113,10 +114,8 @@ class MainWindow(FluentWindow):
 
     def initNavigation(self):
         self.settings = settings()
-        #self.dashboard = dashboard()
         self.botmaker = botmaker()
         self.avatar_widget = AvatarWidget(self)
-        #self.addSubInterface(self.dashboard, FIF.HOME, "Dashboard")
         self.addSubInterface(self.botmaker, FIF.ROBOT, "Botmaker")
         self.navigationInterface.addSeparator()
         self.navigationInterface.addWidget(
