@@ -1,5 +1,6 @@
-from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget, QHBoxLayout
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget, QHBoxLayout, QPlainTextEdit
+from PySide6.QtCore import Qt, QProcess
+from PySide6.QtGui import QFont
 import os
 import sys
 from qfluentwidgets import LineEdit,Flyout, PushButton, DropDownPushButton, SingleDirectionScrollArea, InfoBarIcon, FlyoutAnimationType,  FlyoutView, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
@@ -190,6 +191,26 @@ class boteditor(QFrame):
         self.consoletitle = TitleLabel("Console", self.console)
         self.consoletitle.setStyleSheet("color: #ffffff; font-weight: bold;")
         self.status = CaptionLabel("● Offline", self.console)
+        self.status.setStyleSheet("color: #ff4d4f;")
+        consoleheader.addWidget(self.consoletitle)
+        consoleheader.addStretch(1)
+        consoleheader.addWidget(self.status)
+        self.consolelayout.addLayout(consoleheader)
+
+        self.output = QPlainTextEdit(self.console)
+        self.output.setReadOnly(True)
+        self.output.setFont(QFont("Consolas", 10))
+        self.output.setStyleSheet("QPlainTextEdit { background-color: #151515; color: #dcdcdc; border: none; }")
+        self.consolelayout.addWidget(self.output)
+        self.console.setFixedHeight(180)
+
+        self.layout.addWidget(self.console)
+
+        self.botprocess = QProcess(self)
+        self.botprocess.readyReadStandardOutput.connect(self.aoutput)
+        self.botprocess.readyReadStandardError.connect(self.aerror)
+        self.botprocess.finished.connect(self.afinished)
+
 
 
     def dialogbit(self):
@@ -653,9 +674,35 @@ bot.run(TOKEN)
         w = Flyout.make(flyout, self.compilebutton, self, aniType=FlyoutAnimationType.PULL_UP)
         flyout.closed.connect(w.close)
 
+
+    def aoutput(self):
+        output = self.botprocess.readAllStandardOutput().data().decode(errors="ignore")
+        self.output.appendPlainText(output.strip())
+
+    def aerror(self):
+        error = self.botprocess.readAllStandardError().data().decode(errors="ignore")
+        self.output.appendPlainText(f"[ERROR] {error.strip()}")
+
+    def afinished(self, exit_code, exit_status):
+        self.status.setText("● Offline")
+        self.status.setStyleSheet("color: #ff4d4f;")
+        self.output.appendPlainText(f"\nProcess completed with exit code {exit_code}")
+
+        
     def localdeploy(self):
+        if self.botprocess.state() == QProcess.Running:
+            self.botprocess.terminate()
+            return
+        
         self.compile()
-        os.run("pip install -r requirements.txt")
-        os.run("python bot.py")
+        self.output.clear()
+        self.output.appendPlainText("[INFO] Deploying bot...")
+        self.status.setText("● Starting...")
+        self.status.setStyleSheet("color: #faad14;")
 
+        filepath = os.path.join(os.getcwd(), "bot.py")
+        self.botprocess.start(sys.executable, [filepath])
 
+        if self.botprocess.waitForStarted(2000):
+            self.status.setText("● Online")
+            self.status.setStyleSheet("color: #52c41a;")
