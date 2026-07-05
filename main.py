@@ -113,10 +113,10 @@ class MainWindow(FluentWindow):
 
     def initNavigation(self):
         self.settings = settings()
-        self.dashboard = dashboard()
+        #self.dashboard = dashboard()
         self.botmaker = botmaker()
         self.avatar_widget = AvatarWidget(self)
-        self.addSubInterface(self.dashboard, FIF.HOME, "Dashboard")
+        #self.addSubInterface(self.dashboard, FIF.HOME, "Dashboard")
         self.addSubInterface(self.botmaker, FIF.ROBOT, "Botmaker")
         self.navigationInterface.addSeparator()
         self.navigationInterface.addWidget(
@@ -162,7 +162,7 @@ class MainWindow(FluentWindow):
         if reply.error() == QNetworkReply.NetworkError.NoError:
             try:
                 data = json.loads(reply.readAll().data().decode())
-                if not hasattr(self, 'dashboard'):
+                if not hasattr(self, 'botmaker'):
                     self.initNavigation()
                 self.avatar_widget.update_user_info(data.get("username", "Discord User"), logged_in=True)
                 

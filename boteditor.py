@@ -169,6 +169,10 @@ class boteditor(QFrame):
         self.setting12.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "USERINFO", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.scrolllayout.addWidget(self.setting12)
 
+        self.setting13 = configCard(title="Meme", subtitle="Get a random meme")
+        self.setting13.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "MEME", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.scrolllayout.addWidget(self.setting13)
+
         self.scrolllayout.addStretch(1)
         self.scrollarea.setWidget(self.scrollwidget)
         self.layout.addWidget(self.scrollarea)
@@ -231,6 +235,7 @@ class boteditor(QFrame):
         self.setting10.button.blockSignals(True)
         self.setting11.button.blockSignals(True)
         self.setting12.button.blockSignals(True)
+        self.setting13.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
@@ -243,6 +248,7 @@ class boteditor(QFrame):
         self.setting10.button.setChecked(os.getenv("COIN") == "TRUE")
         self.setting11.button.setChecked(os.getenv("SERVERINFO") == "TRUE")
         self.setting12.button.setChecked(os.getenv("USERINFO") == "TRUE")
+        self.setting13.button.setChecked(os.getenv("MEME") == "TRUE")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
@@ -255,6 +261,7 @@ class boteditor(QFrame):
         self.setting10.button.blockSignals(False)
         self.setting11.button.blockSignals(False)
         self.setting12.button.blockSignals(False)
+        self.setting13.button.blockSignals(False)
 
 
     def compile(self):
@@ -302,6 +309,7 @@ async def ping(interaction: discord.Interaction):
         coin = os.getenv("COIN")
         serverinfo = os.getenv("SERVERINFO")
         userinfo = os.getenv("USERINFO")
+        meme = os.getenv("MEME")
 
 
         if welcome == "TRUE":
@@ -581,6 +589,23 @@ async def userinfo(ctx, member: discord.Member = None):
 
     await ctx.send(content=f"<@{message.author.id}>", embed=embed)
                         
+""")
+                
+        else:
+            pass
+
+
+        if meme == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+import aiohttp           
+@bot.hybrid_command(name="meme", description="Get a random meme")          
+async def meme(ctx):
+    async with aiohttp.ClientSession() as session:
+        async with session.get("https://meme-api.com/gimme") as response:
+            data = await response.json()
+            await ctx.send(data["url"])
+                                    
 """)
                 
         else:
