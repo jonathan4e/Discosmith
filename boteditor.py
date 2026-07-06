@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QStackedWidget, QWidget, QHBoxLayout, QPlainTextEdit
 from PySide6.QtCore import Qt, QProcess
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QKeySequence, QShortcut
 import os
 import sys
 from qfluentwidgets import LineEdit,Flyout, PushButton, DropDownPushButton, SingleDirectionScrollArea, InfoBarIcon, FlyoutAnimationType,  FlyoutView, MessageBox, FluentIcon as FIF, PrimaryDropDownToolButton, RoundMenu, TitleLabel, Action, SwitchButton, CardWidget, BodyLabel, CaptionLabel, TransparentToolButton, PrimaryPushButton
@@ -219,6 +219,9 @@ class boteditor(QFrame):
         self.botprocess.readyReadStandardOutput.connect(self.aoutput)
         self.botprocess.readyReadStandardError.connect(self.aerror)
         self.botprocess.finished.connect(self.afinished)
+
+        self.quitshortcut = QShortcut(QKeySequence("Ctrl+Q"), self)
+        self.quitshortcut.activated.connect(self.terminatebot)
 
 
 
@@ -712,9 +715,11 @@ async def avatar(ctx, member: discord.Member = None):
     embed = discord.Embed(title=f"{user.name}'s Avatar", color=user.color)
     embed.set_image(url=user.display_avatar.url)
     await ctx.send(embed=embed)
-
+                    
 """)
 
+        else:
+            pass
 
 
 
@@ -761,4 +766,13 @@ bot.run(TOKEN)
         if self.botprocess.waitForStarted(2000):
             self.status.setText("● Online")
             self.status.setStyleSheet("color: #52c41a;")
+
+    def terminatebot(self):
+        if self.botprocess.state() == QProcess.Running:
+            self.botprocess.terminate()
+            self.status.setText("● Offline")
+            self.status.setStyleSheet("color: #ff4d4f;")
+            self.output.appendPlainText("[INFO] Bot terminated.")
+        else:
+            pass
 
