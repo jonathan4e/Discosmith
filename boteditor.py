@@ -182,6 +182,11 @@ class boteditor(QFrame):
         self.setting15.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "WEATHER", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.scrolllayout.addWidget(self.setting15)
 
+        self.setting16 = configCard(title="Avatar", subtitle="Get user avatar")
+        self.setting16.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "AVATAR", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.scrolllayout.addWidget(self.setting16)
+
+
         self.scrolllayout.addStretch(1)
         self.scrollarea.setWidget(self.scrollwidget)
         self.layout.addWidget(self.scrollarea)
@@ -276,6 +281,7 @@ class boteditor(QFrame):
         self.setting13.button.blockSignals(True)
         self.setting14.button.blockSignals(True)
         self.setting15.button.blockSignals(True)
+        self.setting16.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
@@ -291,6 +297,7 @@ class boteditor(QFrame):
         self.setting13.button.setChecked(os.getenv("MEME") == "TRUE")
         self.setting14.button.setChecked(os.getenv("DICE") == "TRUE")
         self.setting15.button.setChecked(os.getenv("WEATHER") == "TRUE")
+        self.setting16.button.setChecked(os.getenv("AVATAR") == "TRUE")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
@@ -306,6 +313,7 @@ class boteditor(QFrame):
         self.setting13.button.blockSignals(False)
         self.setting14.button.blockSignals(False)
         self.setting15.button.blockSignals(False)
+        self.setting16.button.blockSignals(False)
 
 
     def compile(self):
@@ -357,6 +365,7 @@ async def ping(interaction: discord.Interaction):
         meme = os.getenv("MEME")
         dice = os.getenv("DICE")
         weather = os.getenv("WEATHER")
+        avatar = os.getenv("AVATAR")
 
 
         if welcome == "TRUE":
@@ -687,9 +696,24 @@ async def weather(ctx, city: str):
                 await ctx.send("Could not fetch weather details")
 
 """)
-
         else:
             pass
+
+        if avatar == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+
+@bot.hybrid_command(name="avatar", description="Get user avatar")
+async def avatar(ctx, member: discord.Member = None):
+    if member:
+        user = member
+    else:
+        user = ctx.author
+    embed = discord.Embed(title=f"{user.name}'s Avatar", color=user.color)
+    embed.set_image(url=user.display_avatar.url)
+    await ctx.send(embed=embed)
+
+""")
 
 
 
