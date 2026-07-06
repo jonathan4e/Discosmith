@@ -178,6 +178,10 @@ class boteditor(QFrame):
         self.setting14.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "DICE", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.scrolllayout.addWidget(self.setting14)
 
+        self.setting15 = configCard(title="Weather", subtitle="Get live weather")
+        self.setting15.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "WEATHER", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.scrolllayout.addWidget(self.setting15)
+
         self.scrolllayout.addStretch(1)
         self.scrollarea.setWidget(self.scrollwidget)
         self.layout.addWidget(self.scrollarea)
@@ -271,6 +275,7 @@ class boteditor(QFrame):
         self.setting12.button.blockSignals(True)
         self.setting13.button.blockSignals(True)
         self.setting14.button.blockSignals(True)
+        self.setting15.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
@@ -285,6 +290,7 @@ class boteditor(QFrame):
         self.setting12.button.setChecked(os.getenv("USERINFO") == "TRUE")
         self.setting13.button.setChecked(os.getenv("MEME") == "TRUE")
         self.setting14.button.setChecked(os.getenv("DICE") == "TRUE")
+        self.setting15.button.setChecked(os.getenv("WEATHER") == "TRUE")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
@@ -299,6 +305,7 @@ class boteditor(QFrame):
         self.setting12.button.blockSignals(False)
         self.setting13.button.blockSignals(False)
         self.setting14.button.blockSignals(False)
+        self.setting15.button.blockSignals(False)
 
 
     def compile(self):
@@ -349,6 +356,7 @@ async def ping(interaction: discord.Interaction):
         userinfo = os.getenv("USERINFO")
         meme = os.getenv("MEME")
         dice = os.getenv("DICE")
+        weather = os.getenv("WEATHER")
 
 
         if welcome == "TRUE":
@@ -629,10 +637,8 @@ async def userinfo(ctx, member: discord.Member = None):
     await ctx.send(content=f"<@{message.author.id}>", embed=embed)
                         
 """)
-                
         else:
             pass
-
 
         if meme == "TRUE":
             with open("bot.py", "a") as f:
@@ -663,6 +669,30 @@ async def dice(ctx):
 
         else:
             pass
+
+        if weather == "TRUE":
+            with open("bot.py", "a") as f:
+                f.write("""
+import aiohttp                        
+
+@bot.hybrid_command(name="weather", description="Get live weather")
+async def weather(ctx, city: str):
+    url = f"https://wttr.in/{city}?format=%l:+%c+%t+|+Humidity:+%h+|+Wind:+%w"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                data = await response.text()
+                await ctx.send(data)
+            else:
+                await ctx.send("Could not fetch weather details")
+
+""")
+
+        else:
+            pass
+
+
+
 
         with open("bot.py", "a") as f:
             f.write("""
@@ -697,6 +727,7 @@ bot.run(TOKEN)
         self.compile()
         self.output.clear()
         self.output.appendPlainText("[INFO] Deploying bot...")
+        self.output.appendPlainText("[INFO] Please make sure you have installed all the required modules from requirements.txt")
         self.status.setText("● Starting...")
         self.status.setStyleSheet("color: #faad14;")
 
@@ -706,3 +737,4 @@ bot.run(TOKEN)
         if self.botprocess.waitForStarted(2000):
             self.status.setText("● Online")
             self.status.setStyleSheet("color: #52c41a;")
+
