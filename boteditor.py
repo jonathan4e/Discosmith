@@ -225,6 +225,7 @@ class boteditor(QFrame):
         self.console.setFixedHeight(180)
 
         self.layout.addWidget(self.console)
+        self.console.setVisible(False)
 
         self.botprocess = QProcess(self)
         self.botprocess.readyReadStandardOutput.connect(self.aoutput)
@@ -265,7 +266,7 @@ class boteditor(QFrame):
         
         self.pagetitle.setText(f"Editing Bot : {bot_name}")
         with open("requirements.txt", "w") as f:
-            f.write("discord\ngoogle\nyt-dlp")
+            f.write("discord\ngoogle\nyt-dlp\n")
 
     def setdir(self, bot_name):
         targetdir = os.path.abspath(os.path.join(os.getcwd(), bot_name))
@@ -797,6 +798,7 @@ bot.run(TOKEN)
         
         self.compile()
         self.output.clear()
+        self.console.setVisible(True)
         self.output.appendPlainText("[INFO] Deploying bot...")
         self.output.appendPlainText("[INFO] Please make sure you have installed all the required modules from requirements.txt")
         self.status.setText("● Starting...")
@@ -815,6 +817,7 @@ bot.run(TOKEN)
             self.status.setText("● Offline")
             self.status.setStyleSheet("color: #ff4d4f;")
             self.output.appendPlainText("[INFO] Bot terminated.")
+            self.console.setVisible(False)
         else:
             pass
 
