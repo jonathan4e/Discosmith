@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt, QSize, QTimer, QRect, QUrl, QStandardPaths, QThre
 from PySide6.QtGui import QPainter, QImage, QBrush, QColor, QFont, QDesktopServices
 from PySide6.QtWidgets import QApplication
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
-from qfluentwidgets import FluentWindow, FluentIcon as FIF, NavigationItemPosition, SplashScreen, NavigationWidget, isDarkTheme, MessageBox
+from qfluentwidgets import FluentWindow, FluentIcon as FIF, NavigationItemPosition, SplashScreen, NavigationWidget, isDarkTheme, MessageBox, setTheme, Theme, setThemeColor
 from settings import settings
 from botmaker import botmaker
 
@@ -103,6 +103,8 @@ class MainWindow(FluentWindow):
         os.makedirs(self.appdata_dir, exist_ok=True)
         self.config_file = os.path.join(self.appdata_dir, "session.json")
 
+        self.loadpersonalization()
+
         self.network_manager = QNetworkAccessManager(self)
         self.listener_thread = None
         self.check_saved_login()
@@ -112,7 +114,7 @@ class MainWindow(FluentWindow):
         QTimer.singleShot(1500, self.splashScreen.finish)
 
     def initNavigation(self):
-        self.settings = settings()
+        self.settings = settings(config_path=self.config_file)
         self.botmaker = botmaker()
         self.avatar_widget = AvatarWidget(self)
         self.addSubInterface(self.botmaker, FIF.ROBOT, "Botmaker")
@@ -176,6 +178,17 @@ class MainWindow(FluentWindow):
         reply = self.network_manager.get(QNetworkRequest(QUrl(url_str)))
         reply.finished.connect(lambda: [self.avatar_widget.set_avatar_image(reply.readAll().data()), reply.deleteLater()])
 
+    def loadpersonalization(self):
+        if os.path.exists(self.config_file):
+            with open(self.config_file, "r") as f:
+                data = json.load(f)
+                savedtheme = data.get("theme", "light")
+                setTheme(Theme.DARK if savedtheme == "dark" else Theme.LIGHT)
+                savedcolor = data.get("accent_color")
+                if savedcolor:
+                    setThemeColor(savedcolor)
+                else:
+                    print("Error")
 
 
 
