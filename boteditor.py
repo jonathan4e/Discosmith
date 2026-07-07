@@ -183,12 +183,12 @@ class boteditor(QFrame):
         self.scrolllayout.addWidget(self.setting16)
 
         self.setting17 = configCard(title="About", subtitle="About the bot")
-        self.setting17.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "ABOUT", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.setting17.button.checkedChanged.connect(lambda checked: self.enableabout(checked))
         self.scrolllayout.addWidget(self.setting17)
 
         self.aboutarea = QWidget(self)
         self.aboutlayout = QVBoxLayout(self.aboutarea)
-        self.aboutlayout.setContentsMargins(0,0,0,0)
+        self.aboutlayout.setContentsMargins(20,0,20,10)
         self.aboutlayout.setSpacing(0)
         self.aboutdescription = LineEdit(self.aboutarea)
         self.aboutdescription.setPlaceholderText("Bot description....")
@@ -197,7 +197,6 @@ class boteditor(QFrame):
         self.aboutlayout.addWidget(self.aboutdescription)
         self.scrolllayout.addWidget(self.aboutarea)
         self.aboutarea.setVisible(False)
-
 
         self.scrolllayout.addStretch(1)
         self.scrollarea.setWidget(self.scrollwidget)
@@ -278,6 +277,11 @@ class boteditor(QFrame):
         self.syncbuttons()
     
 
+
+    def aboutenable(self,checked):
+        set_key(self.dotenvfile, "ABOUT", "TRUE" if checked else "FALSE", quote_mode="never")
+        self.aboutarea.setVisible(checked)
+
     def syncbuttons(self):
         load_dotenv(self.dotenvfile)
 
@@ -334,6 +338,7 @@ class boteditor(QFrame):
         self.setting15.button.blockSignals(False)
         self.setting16.button.blockSignals(False)
         self.setting17.button.blockSignals(False)
+
 
 
     def compile(self):
