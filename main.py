@@ -3,7 +3,7 @@ import json
 import os
 import socket
 from PySide6.QtCore import Qt, QSize, QTimer, QRect, QUrl, QStandardPaths, QThread, Signal
-from PySide6.QtGui import QPainter, QImage, QBrush, QColor, QFont, QDesktopServices
+from PySide6.QtGui import QPainter, QImage, QBrush, QColor, QFont, QDesktopServices, QIcon
 from PySide6.QtWidgets import QApplication
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from qfluentwidgets import FluentWindow, FluentIcon as FIF, NavigationItemPosition, SplashScreen, NavigationWidget, isDarkTheme, MessageBox, setTheme, Theme, setThemeColor
@@ -93,6 +93,7 @@ class MainWindow(FluentWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Discosmith")
+        self.setWindowIcon(QIcon("logo.png"))
         
         self.splashScreen = SplashScreen(self.windowIcon(), self)
         self.splashScreen.setIconSize(QSize(120, 120))
@@ -103,6 +104,7 @@ class MainWindow(FluentWindow):
         os.makedirs(self.appdata_dir, exist_ok=True)
         self.config_file = os.path.join(self.appdata_dir, "session.json")
 
+        self.initNavigation()
         self.loadpersonalization()
 
         self.network_manager = QNetworkAccessManager(self)
@@ -114,7 +116,7 @@ class MainWindow(FluentWindow):
         QTimer.singleShot(1500, self.splashScreen.finish)
 
     def initNavigation(self):
-        self.settings = settings(config_path=self.config_file)
+        self.settings = settings(configpath=self.config_file)
         self.botmaker = botmaker()
         self.avatar_widget = AvatarWidget(self)
         self.addSubInterface(self.botmaker, FIF.ROBOT, "Botmaker")
@@ -182,11 +184,11 @@ class MainWindow(FluentWindow):
         if os.path.exists(self.config_file):
             with open(self.config_file, "r") as f:
                 data = json.load(f)
-                savedtheme = data.get("theme", "light")
-                setTheme(Theme.DARK if savedtheme == "dark" else Theme.LIGHT)
+                savedtheme = data.get("theme", "LIGHT")
+                setTheme(Theme.DARK if savedtheme == "DARK" else Theme.LIGHT)
                 savedcolor = data.get("accent_color")
                 if savedcolor:
-                    setThemeColor(savedcolor)
+                    setThemeColor(QColor(savedcolor))
                 else:
                     print("Error")
 

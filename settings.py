@@ -37,12 +37,17 @@ class settings(QFrame):
 
     def syncbuttons(self):
         if os.path.exists(self.configpath):
-            with open(self.configpath, "r") as f:
-                data = json.load(f)
-                dark = data.get("theme", "light") == "dark"
-                self.themecard.switchbutton.blockSignals(True)
-                self.themecard.switchbutton.setChecked(dark)
-                self.themecard.switchbutton.blockSignals(False)
+            try:
+                with open(self.configpath, "r") as f:
+                    data = json.load(f)
+
+                    saved_theme = data.get("theme", "LIGHT")
+                    dark = saved_theme in ["dark", "DARK"]
+                    self.themecard.switchButton.blockSignals(True)
+                    self.themecard.switchButton.setChecked(dark)
+                    self.themecard.switchButton.blockSignals(False)
+            except Exception as e:
+                print(f"Error syncing settings buttons: {e}")
 
 
     def themechanged(self, checked):
@@ -68,5 +73,6 @@ class settings(QFrame):
             with open(self.configpath, "r") as f:
                 data = json.load(f)
         data["accent_color"] = color.name()
+        
         with open(self.configpath, "w") as f:
             json.dump(data, f, indent=4)
