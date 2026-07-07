@@ -1,16 +1,26 @@
 # Discosmith
 
-Discosmith is a FluentUI based Discord Bot Maker App. You can use it to build discord bots without needing to know how to code. Just toggle the switches for the features you want, compile the bot, and deploy it locally or on other hosting sites. Built using qfluentwidgets and PySide6.
+Discosmith is a FluentUI based Discord Bot Maker App. You can use it to build discord bots without needing to know how to code. Just toggle the switches for the features you want, compile the bot, and deploy it locally or on other hosting sites. It's main ain is to simplify the building of a discord bot, with the best possible UI for Windows.
+
+Built using qfluentwidgets and PySide6.
 
 It comes with 15+ commands, including welcomer, AI chat, music, mod commands, etc.
 
 ![screenshot](screenshot.png)
 
+## Requirements
+
+- Windows 10 or above
+- Python (optional)
+
+----
+
 ## How to use
 
 1. Download the latest zip of app from the releases. Then unzip it to your desired folder.
 
-2. Once you open the app, you will be redirected to login using your discord account.
+2. Once you open the app, make sure to allow running of the app through SmartScreen if it blocks it by any chance.
+You will be redirected to login using your discord account.
 
 3. Once in, click on the `Add` button on the top right of the page.
 
