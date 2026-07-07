@@ -25,7 +25,6 @@ class configCard(CardWidget):
         self.title = BodyLabel(title, self)
         self.subtitle = CaptionLabel(subtitle, self)
         self.button = SwitchButton(self)
-        #self.more = TransparentToolButton(FIF.MORE, self)
         self.hlayout = QHBoxLayout(self)
         self.vlayout = QVBoxLayout()
         
@@ -45,9 +44,6 @@ class configCard(CardWidget):
         self.hlayout.addStretch(1)
 
         self.hlayout.addWidget(self.button, 0, Qt.AlignRight)
-        #self.hlayout.addWidget(self.more,0, Qt.AlignRight)
-        #self.more.setFixedSize(32,32)
-
 
 
 class apikeymessage(MessageBox):
@@ -186,6 +182,22 @@ class boteditor(QFrame):
         self.setting16.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "AVATAR", "TRUE" if checked else "FALSE", quote_mode="never"))
         self.scrolllayout.addWidget(self.setting16)
 
+        self.setting17 = configCard(title="About", subtitle="About the bot")
+        self.setting17.button.checkedChanged.connect(lambda checked: set_key(self.dotenvfile, "ABOUT", "TRUE" if checked else "FALSE", quote_mode="never"))
+        self.scrolllayout.addWidget(self.setting17)
+
+        self.aboutarea = QWidget(self)
+        self.aboutlayout = QVBoxLayout(self.aboutarea)
+        self.aboutlayout.setContentsMargins(0,0,0,0)
+        self.aboutlayout.setSpacing(0)
+        self.aboutdescription = LineEdit(self.aboutarea)
+        self.aboutdescription.setPlaceholderText("Bot description....")
+        self.aboutdescription.setClearButtonEnabled(True)
+        self.aboutdescription.textChanged.connect(lambda text: set_key(self.dotenvfile, "ABT_DESC", text, quote_mode="never"))
+        self.aboutlayout.addWidget(self.aboutdescription)
+        self.scrolllayout.addWidget(self.aboutarea)
+        self.aboutarea.setVisible(False)
+
 
         self.scrolllayout.addStretch(1)
         self.scrollarea.setWidget(self.scrollwidget)
@@ -285,6 +297,7 @@ class boteditor(QFrame):
         self.setting14.button.blockSignals(True)
         self.setting15.button.blockSignals(True)
         self.setting16.button.blockSignals(True)
+        self.setting17.button.blockSignals(True)
         self.setting1.button.setChecked(os.getenv("WELCOMER") == "TRUE")
         self.setting2.button.setChecked(os.getenv("AI") == "TRUE")
         self.setting3.button.setChecked(os.getenv("GA") == "TRUE")
@@ -301,6 +314,9 @@ class boteditor(QFrame):
         self.setting14.button.setChecked(os.getenv("DICE") == "TRUE")
         self.setting15.button.setChecked(os.getenv("WEATHER") == "TRUE")
         self.setting16.button.setChecked(os.getenv("AVATAR") == "TRUE")
+        self.setting17.button.setChecked(os.getenv("ABOUT") == "TRUE")
+        self.aboutarea.setVisible(os.getenv("ABOUT") == "TRUE")
+        self.aboutdescription.setText(os.getenv("ABT_DESC") or "")
         self.setting1.button.blockSignals(False)
         self.setting2.button.blockSignals(False)
         self.setting3.button.blockSignals(False)
@@ -317,6 +333,7 @@ class boteditor(QFrame):
         self.setting14.button.blockSignals(False)
         self.setting15.button.blockSignals(False)
         self.setting16.button.blockSignals(False)
+        self.setting17.button.blockSignals(False)
 
 
     def compile(self):
@@ -369,6 +386,8 @@ async def ping(interaction: discord.Interaction):
         dice = os.getenv("DICE")
         weather = os.getenv("WEATHER")
         avatar = os.getenv("AVATAR")
+        about = os.getenv("ABOUT")
+        abt_desc = os.getenv("ABT_DESC") or "No description Provided."
 
 
         if welcome == "TRUE":
@@ -723,6 +742,24 @@ async def avatar(ctx, member: discord.Member = None):
 
 
 
+        if about == "TRUE":
+            with open("bot.py","a") as f:
+                f.write(f"""
+@bot.hybrid_command(name="about", description="About the bot")
+async def about(ctx): 
+    descriptiontext = os.getenv("ABT_DESC") or "No description provided."
+    embed = discord.Embed(title="About the bot", description=descriptiontext, color=discord.Color.blurple())
+    if bot.user.display_avatar:
+        embed.set_thumbnail(url=bot.user.display_avatar.url)
+    embed.set_footer(text="Made with Discosmith")
+    await ctx.send(embed=embed)
+
+""")
+                
+        else:
+            pass
+
+
         with open("bot.py", "a") as f:
             f.write("""
 bot.run(TOKEN)
@@ -775,4 +812,5 @@ bot.run(TOKEN)
             self.output.appendPlainText("[INFO] Bot terminated.")
         else:
             pass
+
 
