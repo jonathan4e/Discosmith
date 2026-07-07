@@ -1,0 +1,6 @@
+pyqt_fluent_widgets==1.8.7
+pyside6==6.10.1
+pyside6_addons==6.10.1
+pyside6_essentials==6.10.1
+pyside6_fluent_widgets==1.10.5
+python-dotenv==1.2.2
