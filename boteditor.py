@@ -671,7 +671,7 @@ async def userinfo(ctx, member: discord.Member = None):
     embed.add_field(name="Joined Server", value=member.joined_at.strftime("%Y-%m-%d"), inline=False)
     embed.add_field(name="Joined Discord", value=member.created_at.strftime("%Y-%m-%d"), inline=False)
 
-    await ctx.send(content=f"<@{message.author.id}>", embed=embed)
+    await ctx.send(content=f"<@{ctx.author.id}>", embed=embed)
                         
 """)
         else:
